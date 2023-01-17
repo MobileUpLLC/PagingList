@@ -7,20 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E10FA35429770CCB0031ED65 /* PagingList in Frameworks */ = {isa = PBXBuildFile; productRef = E10FA35329770CCB0031ED65 /* PagingList */; };
 		E1FDB14A29770604003CC2A5 /* ExampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1FDB14929770604003CC2A5 /* ExampleApp.swift */; };
 		E1FDB14C29770604003CC2A5 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1FDB14B29770604003CC2A5 /* ContentView.swift */; };
 		E1FDB14E29770605003CC2A5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E1FDB14D29770605003CC2A5 /* Assets.xcassets */; };
 		E1FDB15129770605003CC2A5 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E1FDB15029770605003CC2A5 /* Preview Assets.xcassets */; };
-		E1FDB15B29770836003CC2A5 /* PagingList in Frameworks */ = {isa = PBXBuildFile; productRef = E1FDB15A29770836003CC2A5 /* PagingList */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		E10FA35229770CBE0031ED65 /* PagingList */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = PagingList; path = ..; sourceTree = "<group>"; };
 		E1FDB14629770604003CC2A5 /* Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E1FDB14929770604003CC2A5 /* ExampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExampleApp.swift; sourceTree = "<group>"; };
 		E1FDB14B29770604003CC2A5 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		E1FDB14D29770605003CC2A5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E1FDB15029770605003CC2A5 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		E1FDB158297706DE003CC2A5 /* PagingList */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = PagingList; path = ../..; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -28,17 +28,25 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E1FDB15B29770836003CC2A5 /* PagingList in Frameworks */,
+				E10FA35429770CCB0031ED65 /* PagingList in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E10FA35129770CBE0031ED65 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				E10FA35229770CBE0031ED65 /* PagingList */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
 		E1FDB13D29770604003CC2A5 = {
 			isa = PBXGroup;
 			children = (
-				E1FDB157297706DD003CC2A5 /* Packages */,
+				E10FA35129770CBE0031ED65 /* Packages */,
 				E1FDB14829770604003CC2A5 /* Sources */,
 				E1FDB14729770604003CC2A5 /* Products */,
 				E1FDB15929770836003CC2A5 /* Frameworks */,
@@ -72,14 +80,6 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
-		E1FDB157297706DD003CC2A5 /* Packages */ = {
-			isa = PBXGroup;
-			children = (
-				E1FDB158297706DE003CC2A5 /* PagingList */,
-			);
-			name = Packages;
-			sourceTree = "<group>";
-		};
 		E1FDB15929770836003CC2A5 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -94,6 +94,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = E1FDB15429770605003CC2A5 /* Build configuration list for PBXNativeTarget "Example" */;
 			buildPhases = (
+				E1FDB15C29770B5C003CC2A5 /* SwiftLint */,
 				E1FDB14229770604003CC2A5 /* Sources */,
 				E1FDB14329770604003CC2A5 /* Frameworks */,
 				E1FDB14429770604003CC2A5 /* Resources */,
@@ -104,7 +105,7 @@
 			);
 			name = Example;
 			packageProductDependencies = (
-				E1FDB15A29770836003CC2A5 /* PagingList */,
+				E10FA35329770CCB0031ED65 /* PagingList */,
 			);
 			productName = Example;
 			productReference = E1FDB14629770604003CC2A5 /* Example.app */;
@@ -154,6 +155,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		E1FDB15C29770B5C003CC2A5 /* SwiftLint */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = SwiftLint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "export PATH=\"$PATH:/opt/homebrew/bin\"\n\nif which swiftlint >/dev/null; then\n  swiftlint --path .. --config ../swiftlint.yml\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		E1FDB14229770604003CC2A5 /* Sources */ = {
@@ -362,7 +385,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		E1FDB15A29770836003CC2A5 /* PagingList */ = {
+		E10FA35329770CCB0031ED65 /* PagingList */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = PagingList;
 		};
