@@ -10,10 +10,10 @@ import AdvancedList
 
 public struct PageRequestDescriptor {
     public enum PageType {
-        case initial // Начальная полноэкранная загрузка или пулл-ту-руфреш
+        case first // Начальная полноэкранная загрузка или пулл-ту-руфреш
         case anyNext // Любой слудующий пейдж
         
-        public var isInitial: Bool { self == .initial }
+        public var isInitial: Bool { self == .first }
     }
     
     /// Тип запрашиваемого пейджа.
@@ -28,14 +28,14 @@ public struct PageRequestDescriptor {
     public let completion: (Result<Void, Swift.Error>) -> Void
 }
 
-public struct PagingList<Items: RandomAccessCollection, RowContent: View>: View where Items.Element: Identifiable {
+public struct PagingList<Items: RandomAccessCollection, Content: View>: View where Items.Element: Identifiable {
     public typealias PageRequestClosure = (PageRequestDescriptor) -> Void
     
     @State private var listState: ListState = .items
     @State private var paginationState: AdvancedListPaginationState = .idle
     
     private let items: Items
-    private let rowContentBuilder: (Items.Element) -> RowContent
+    private let rowContentBuilder: (Items.Element) -> Content
     private let onPageRequest: PageRequestClosure
     
     public var body: some View {
@@ -52,7 +52,7 @@ public struct PagingList<Items: RandomAccessCollection, RowContent: View>: View 
                 // Полноэкранное состояние ошибки
                 // Показывается когда listState = .error
                 // При нажатии на ретрай показывается FullscreenLoadingStateView
-                FullscreenErrorStateView(error: error, onRetryAction: requestInitial)
+                FullscreenErrorStateView(error: error, onRetryAction: requestFirstPage)
             },
             loadingStateView: {
                 // Полноэкранное состояние загрузки
@@ -61,12 +61,12 @@ public struct PagingList<Items: RandomAccessCollection, RowContent: View>: View 
             }
         )
         .pagination(
-            .init(type: .lastItem, shouldLoadNextPage: loadNextItems) {
+            .init(type: .lastItem, shouldLoadNextPage: requestNextPage) {
                 switch paginationState {
                 case .error(let error):
                     // Показывается когда при загрузке пейджа пришла ошибка
                     // При нажатии на ретрай показывается PagingLoadingState
-                    PagingErrorStateView(error: error, onRetryAction: loadNextItems)
+                    PagingErrorStateView(error: error, onRetryAction: requestNextPage)
                 case .idle:
                     // Показывается когда
                     // не выполняется загрузка пейджа и не состояние ошибки пейджа
@@ -79,13 +79,16 @@ public struct PagingList<Items: RandomAccessCollection, RowContent: View>: View 
         )
         .refreshable(action: requestOnRefresh)
         .onAppear {
-            requestInitial()
+            requestFirstPage()
         }
     }
     
     public init(
         items: Items,
-        @ViewBuilder rowContent: @escaping (Items.Element) -> RowContent,
+        @ViewBuilder rowContent: @escaping (Items.Element) -> Content,
+//        @ViewBuilder fullscreenEmptyState: @escaping () -> Content,
+//        @ViewBuilder fullscreenLoadingState: @escaping () -> Content,
+//        @ViewBuilder fullscreenErrorState: @escaping (Error, ) -> Content,
         onPageRequest: @escaping PageRequestClosure
     ) {
         self.items = items
@@ -93,7 +96,21 @@ public struct PagingList<Items: RandomAccessCollection, RowContent: View>: View 
         self.onPageRequest = onPageRequest
     }
     
-    private func loadNextItems() {
+    private func requestFirstPage() {
+        listState = .loading
+        
+        let descriptor = PageRequestDescriptor(type: .first) { result in
+            switch result {
+            case .success:
+                listState = .items
+            case .failure(let error):
+                listState = .error(error as NSError)
+            }
+        }
+        onPageRequest(descriptor)
+    }
+    
+    private func requestNextPage() {
         if paginationState == .loading {
             return
         }
@@ -111,27 +128,12 @@ public struct PagingList<Items: RandomAccessCollection, RowContent: View>: View 
         onPageRequest(descriptor)
     }
     
-    private func requestInitial() {
-        listState = .loading
-        
-        let descriptor = PageRequestDescriptor(type: .anyNext) { result in
-            switch result {
-            case .success:
-                listState = .items
-            case .failure(let error):
-                listState = .error(error as NSError)
-            }
-        }
-        
-        onPageRequest(descriptor)
-    }
-    
     @Sendable private func requestOnRefresh() async {
         return await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
             listState = .items
             paginationState = .idle
             
-            let descriptor = PageRequestDescriptor(type: .anyNext) { result in
+            let descriptor = PageRequestDescriptor(type: .first) { result in
                 switch result {
                 case .success:
                     listState = .items
@@ -140,7 +142,6 @@ public struct PagingList<Items: RandomAccessCollection, RowContent: View>: View 
                 }
                 continuation.resume(returning: ())
             }
-            
             onPageRequest(descriptor)
         }
     }
