@@ -8,7 +8,18 @@
 import SwiftUI
 import AdvancedList
 
-public enum PagingListState: Equatable {
+public enum PagingListState {
+    case items
+    
+    case fullscreenLoading
+    case fullscreenError(Error)
+    
+    case pagingLoading
+    case pagingError(Error)
+    case pagingEmpty
+}
+
+extension PagingListState: Equatable {
     public static func == (lhs: PagingListState, rhs: PagingListState) -> Bool {
         switch (lhs, rhs) {
         case (.items, .items):
@@ -25,15 +36,6 @@ public enum PagingListState: Equatable {
             return false
         }
     }
-    
-    case items
-    
-    case fullscreenLoading
-    case fullscreenError(Error)
-    
-    case pagingLoading
-    case pagingError(Error)
-    case pagingEmpty
 }
 
 public struct PagingList<
