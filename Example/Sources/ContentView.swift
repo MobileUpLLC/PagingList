@@ -13,11 +13,13 @@ extension Int: Identifiable {
 }
 
 struct ContentView: View {
-    @State var items = [Int]()
     private let r = ItemsRepository()
     
+    @State var items = [Int]()
+    @State private var pagingState: PagingListState = .items
+    
     var body: some View {
-        PagingList(items: items) { item in
+        PagingList(state: $pagingState, items: items) { item in
             Text("\(item)")
         } fullscreenEmptyView: {
             FullscreenEmptyStateView()
@@ -25,21 +27,22 @@ struct ContentView: View {
             FullscreenLoadingStateView()
         } fullscreenErrorView: { error in
             FullscreenErrorStateView(error: error) {
-                print("qwe")
+                pagingState = .fullscreenLoading
             }
         } pagingLoadingView: {
             PagingLoadingStateView()
         } pagingErrorView: { error in
             PagingErrorStateView(error: error) {
+                pagingState = .pagingLoading
             }
-        } onPageRequest: { descriptor in
+        } onPageRequest: { isFirst in
             r.getItems { ints in
-                if descriptor.type.isInitial {
+                if isFirst {
                     items = ints
                 } else {
                     items.append(contentsOf: ints)
                 }
-                descriptor.completion(.success(()))
+                pagingState = .items
             }
         }
     }

@@ -8,24 +8,32 @@
 import SwiftUI
 import AdvancedList
 
-public struct PageRequestDescriptor {
-    public enum PageType {
-        case first // Начальная полноэкранная загрузка или пулл-ту-руфреш
-        case anyNext // Любой слудующий пейдж
-        
-        public var isInitial: Bool { self == .first }
+public enum PagingListState: Equatable {
+    public static func == (lhs: PagingListState, rhs: PagingListState) -> Bool {
+        switch (lhs, rhs) {
+        case (.items, .items):
+            return true
+        case (.fullscreenLoading, .fullscreenLoading):
+            return true
+        case (.pagingLoading, .pagingLoading):
+            return true
+        case (.pagingError, .pagingError):
+            return true
+        case (.pagingEmpty, .pagingEmpty):
+            return true
+        default:
+            return false
+        }
     }
     
-    /// Тип запрашиваемого пейджа.
-    public let type: PageType
+    case items
     
-    /// Должен быть вызван ПОСЛЕ обновления коллекции Items.
-    /// При загрузке первого пейджа или рефреша нужно заменить коллекцию целиком: items = newItems
-    /// При загрузке следующего пейджа нужно добавить айтемы: items.apped(contentsOf: newItems)
-    ///
-    /// В случае успеха .success(())
-    /// В случае ошибки .failure(error). Ошибка будет проброшена во вьюшку, которая отвечает за состояние ошибки.
-    public let completion: (Result<Void, Swift.Error>) -> Void
+    case fullscreenLoading
+    case fullscreenError(Error)
+    
+    case pagingLoading
+    case pagingError(Error)
+    case pagingEmpty
 }
 
 public struct PagingList<
@@ -37,20 +45,20 @@ public struct PagingList<
         PagingLoadingView: View,
         PagingErrorView: View
     >: View where Items.Element: Identifiable {
-    public typealias PageRequestClosure = (PageRequestDescriptor) -> Void
+    public typealias PageRequestClosure = (Bool) -> Void
     
-    public enum PagingListState {
-        case items
-        case loading
-        case error(Error)
-        
-        case pagingLoading
-        case pagingError(Error)
-        case pagingEmpty
+    private var listState: ListState {
+        switch state {
+        case .items, .pagingLoading, .pagingError, .pagingEmpty:
+            return .items
+        case .fullscreenLoading:
+            return .loading
+        case .fullscreenError(let error):
+            return .error(error as NSError)
+        }
     }
     
-    @State private var listState: ListState = .items
-    @State private var paginationState: AdvancedListPaginationState = .idle
+    @Binding private var state: PagingListState
     
     private let items: Items
     private let rowContentBuilder: (Items.Element) -> RowContent
@@ -88,18 +96,13 @@ public struct PagingList<
         )
         .pagination(
             .init(type: .lastItem, shouldLoadNextPage: requestNextPage) {
-                switch paginationState {
-                case .error(let error):
-                    // Показывается когда при загрузке пейджа пришла ошибка
-                    // При нажатии на ретрай показывается PagingLoadingState
-                    pagingErrorViewBuilder(error)
-                case .idle:
-                    // Показывается когда
-                    // не выполняется загрузка пейджа и не состояние ошибки пейджа
+                switch state {
+                case .items, .fullscreenLoading, .fullscreenError, .pagingEmpty:
                     EmptyView()
-                case .loading:
-                    // Показывается когда выполеняется загрузка пейджа
+                case .pagingLoading:
                     pagingLoadingViewBuilder()
+                case .pagingError(let error):
+                    pagingErrorViewBuilder(error)
                 }
             }
         )
@@ -110,6 +113,7 @@ public struct PagingList<
     }
     
     public init(
+        state: Binding<PagingListState>,
         items: Items,
         @ViewBuilder rowContent: @escaping (Items.Element) -> RowContent,
         @ViewBuilder fullscreenEmptyView: @escaping () -> FullscreenEmptyView,
@@ -119,6 +123,7 @@ public struct PagingList<
         @ViewBuilder pagingErrorView: @escaping (Error) -> PagingErrorView,
         onPageRequest: @escaping PageRequestClosure
     ) {
+        self._state = state
         self.items = items
         self.rowContentBuilder = rowContent
         self.fullscreenEmptyViewBuilder = fullscreenEmptyView
@@ -130,52 +135,24 @@ public struct PagingList<
     }
     
     private func requestFirstPage() {
-        listState = .loading
-        
-        let descriptor = PageRequestDescriptor(type: .first) { result in
-            switch result {
-            case .success:
-                listState = .items
-            case .failure(let error):
-                listState = .error(error as NSError)
-            }
-        }
-        onPageRequest(descriptor)
+        state = .fullscreenLoading
+        onPageRequest(true)
     }
     
     private func requestNextPage() {
-        if paginationState == .loading {
+        if state == .pagingLoading {
             return
         }
         
-        paginationState = .loading
-        
-        let descriptor = PageRequestDescriptor(type: .anyNext) { result in
-            switch result {
-            case .success:
-                paginationState = .idle
-            case .failure(let error):
-                paginationState = .error(error as NSError)
-            }
-        }
-        onPageRequest(descriptor)
+        state = .pagingLoading
+        onPageRequest(false)
     }
     
     @Sendable private func requestOnRefresh() async {
         return await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
-            listState = .items
-            paginationState = .idle
-            
-            let descriptor = PageRequestDescriptor(type: .first) { result in
-                switch result {
-                case .success:
-                    listState = .items
-                case .failure(let error):
-                    listState = .error(error as NSError)
-                }
-                continuation.resume(returning: ())
-            }
-            onPageRequest(descriptor)
+            state = .items
+            onPageRequest(true)
+            continuation.resume(returning: ())
         }
     }
 }
