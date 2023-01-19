@@ -28,14 +28,40 @@ public struct PageRequestDescriptor {
     public let completion: (Result<Void, Swift.Error>) -> Void
 }
 
-public struct PagingList<Items: RandomAccessCollection, Content: View>: View where Items.Element: Identifiable {
+public struct PagingList<
+        Items: RandomAccessCollection,
+        RowContent: View,
+        FullscreenEmptyView: View,
+        FullscreenLoadingView: View,
+        FullscreenErrorView: View,
+        PagingLoadingView: View,
+        PagingErrorView: View
+    >: View where Items.Element: Identifiable {
     public typealias PageRequestClosure = (PageRequestDescriptor) -> Void
+    
+    public enum PagingListState {
+        case items
+        case loading
+        case error(Error)
+        
+        case pagingLoading
+        case pagingError(Error)
+        case pagingEmpty
+    }
     
     @State private var listState: ListState = .items
     @State private var paginationState: AdvancedListPaginationState = .idle
     
     private let items: Items
-    private let rowContentBuilder: (Items.Element) -> Content
+    private let rowContentBuilder: (Items.Element) -> RowContent
+    
+    private let fullscreenEmptyViewBuilder: () -> FullscreenEmptyView
+    private let fullscreenErrorViewBuilder: (Error) -> FullscreenErrorView
+    private let fullscreenLoadingViewBuilder: () -> FullscreenLoadingView
+    
+    private let pagingLoadingViewBuilder: () -> PagingLoadingView
+    private let pagingErrorViewBuilder: (Error) -> PagingErrorView
+    
     private let onPageRequest: PageRequestClosure
     
     public var body: some View {
@@ -46,18 +72,18 @@ public struct PagingList<Items: RandomAccessCollection, Content: View>: View whe
             emptyStateView: {
                 // Полноэкранное пустое состояние
                 // Показывается когда listState = .item и data = [].
-                FullscreenEmptyStateView()
+                fullscreenEmptyViewBuilder()
             },
             errorStateView: { error in
                 // Полноэкранное состояние ошибки
                 // Показывается когда listState = .error
                 // При нажатии на ретрай показывается FullscreenLoadingStateView
-                FullscreenErrorStateView(error: error, onRetryAction: requestFirstPage)
+                fullscreenErrorViewBuilder(error)
             },
             loadingStateView: {
                 // Полноэкранное состояние загрузки
                 // Показывается когда lisetState = .loading
-                FullscreenLoadingStateView()
+                fullscreenLoadingViewBuilder()
             }
         )
         .pagination(
@@ -66,14 +92,14 @@ public struct PagingList<Items: RandomAccessCollection, Content: View>: View whe
                 case .error(let error):
                     // Показывается когда при загрузке пейджа пришла ошибка
                     // При нажатии на ретрай показывается PagingLoadingState
-                    PagingErrorStateView(error: error, onRetryAction: requestNextPage)
+                    pagingErrorViewBuilder(error)
                 case .idle:
                     // Показывается когда
                     // не выполняется загрузка пейджа и не состояние ошибки пейджа
-                    PagingIdleStateView()
+                    EmptyView()
                 case .loading:
                     // Показывается когда выполеняется загрузка пейджа
-                    PagingLoadingStateView()
+                    pagingLoadingViewBuilder()
                 }
             }
         )
@@ -85,14 +111,21 @@ public struct PagingList<Items: RandomAccessCollection, Content: View>: View whe
     
     public init(
         items: Items,
-        @ViewBuilder rowContent: @escaping (Items.Element) -> Content,
-//        @ViewBuilder fullscreenEmptyState: @escaping () -> Content,
-//        @ViewBuilder fullscreenLoadingState: @escaping () -> Content,
-//        @ViewBuilder fullscreenErrorState: @escaping (Error, ) -> Content,
+        @ViewBuilder rowContent: @escaping (Items.Element) -> RowContent,
+        @ViewBuilder fullscreenEmptyView: @escaping () -> FullscreenEmptyView,
+        @ViewBuilder fullscreenLoadingView: @escaping () -> FullscreenLoadingView,
+        @ViewBuilder fullscreenErrorView: @escaping (Error) -> FullscreenErrorView,
+        @ViewBuilder pagingLoadingView: @escaping () -> PagingLoadingView,
+        @ViewBuilder pagingErrorView: @escaping (Error) -> PagingErrorView,
         onPageRequest: @escaping PageRequestClosure
     ) {
         self.items = items
         self.rowContentBuilder = rowContent
+        self.fullscreenEmptyViewBuilder = fullscreenEmptyView
+        self.fullscreenLoadingViewBuilder = fullscreenLoadingView
+        self.fullscreenErrorViewBuilder = fullscreenErrorView
+        self.pagingLoadingViewBuilder = pagingLoadingView
+        self.pagingErrorViewBuilder = pagingErrorView
         self.onPageRequest = onPageRequest
     }
     
@@ -144,80 +177,5 @@ public struct PagingList<Items: RandomAccessCollection, Content: View>: View whe
             }
             onPageRequest(descriptor)
         }
-    }
-}
-
-private struct FullscreenLoadingStateView: View {
-    var body: some View {
-        // TODO: Заменить своей реализацией
-        ZStack {
-            Color.pink
-            Text("Loading")
-        }
-    }
-}
-
-private struct FullscreenErrorStateView: View {
-    var error: Swift.Error
-    var onRetryAction: () -> Void
-    
-    var body: some View {
-        // TODO: Заменить своей реализацией
-        ZStack {
-            Color.red
-            VStack {
-                Text(error.localizedDescription)
-                Button(action: onRetryAction) {
-                    Text("Retry")
-                }
-            }
-        }
-    }
-}
-
-private struct FullscreenEmptyStateView: View {
-    var body: some View {
-        // TODO: Заменить своей реализацией
-        ZStack {
-            Color.green
-            Text("Empty here")
-        }
-    }
-}
-
-private struct PagingLoadingStateView: View {
-    var body: some View {
-        // TODO: Заменить своей реализацией
-        ZStack {
-            Color.gray
-            Text("Loading next page")
-        }
-        .frame(height: 50)
-    }
-}
-
-private struct PagingIdleStateView: View {
-    var body: some View {
-        // TODO: Заменить своей реализацией
-        EmptyView()
-    }
-}
-
-private struct PagingErrorStateView: View {
-    var error: Swift.Error
-    var onRetryAction: () -> Void
-    
-    var body: some View {
-        // TODO: Заменить своей реализацией
-        ZStack {
-            Color.red
-            VStack {
-                Text(error.localizedDescription)
-                Button(action: onRetryAction) {
-                    Text("Retry")
-                }
-            }
-        }
-        .frame(height: 50)
     }
 }
