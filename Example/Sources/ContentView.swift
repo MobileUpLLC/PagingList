@@ -20,7 +20,10 @@ struct ContentView: View {
     @State private var pagingState: PagingListState = .items
     
     var body: some View {
-        PagingList(state: $pagingState, items: items) { item in
+        PagingList(
+            state: $pagingState,
+            items: items
+        ) { item in
             Text("\(item)")
         } fullscreenEmptyView: {
             FullscreenEmptyStateView()
@@ -28,6 +31,8 @@ struct ContentView: View {
             FullscreenLoadingStateView()
         } fullscreenErrorView: { error in
             FullscreenErrorStateView(error: error) {
+                // Заново запрашиваем первый пейдж
+                // с показом полноэкранной загрузки
                 pagingState = .fullscreenLoading
                 requestItems(isFirst: true)
             }
@@ -35,6 +40,8 @@ struct ContentView: View {
             PagingLoadingStateView()
         } pagingErrorView: { error in
             PagingErrorStateView(error: error) {
+                // Заново запрашиваем следующий пейдж
+                // с показом пейджинговой загрузки
                 pagingState = .pagingLoading
                 requestItems(isFirst: false)
             }
