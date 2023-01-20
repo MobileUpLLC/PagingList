@@ -104,7 +104,7 @@ file_length:
   error: 500
 
 closure_body_length:
-  warning: 10
+  warning: 30
   error: 30
 
 type_name:

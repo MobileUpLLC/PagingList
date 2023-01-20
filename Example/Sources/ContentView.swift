@@ -8,14 +8,15 @@
 import SwiftUI
 import PagingList
 
-extension Int: Identifiable {
-    public var id: Int { self }
-}
-
 struct ContentView: View {
-    private let r = ItemsRepository()
+    private enum Constants {
+        static let requestLimit = 20
+    }
     
-    @State var items = [Int]()
+    private let repository = ItemsRepository()
+    
+    @State private var loadedPage = 0
+    @State private var items = [Int]()
     @State private var pagingState: PagingListState = .items
     
     var body: some View {
@@ -28,47 +29,42 @@ struct ContentView: View {
         } fullscreenErrorView: { error in
             FullscreenErrorStateView(error: error) {
                 pagingState = .fullscreenLoading
+                requestItems(isFirst: true)
             }
         } pagingLoadingView: {
             PagingLoadingStateView()
         } pagingErrorView: { error in
             PagingErrorStateView(error: error) {
                 pagingState = .pagingLoading
+                requestItems(isFirst: false)
             }
         } onPageRequest: { isFirst in
-            r.getItems { ints in
+            requestItems(isFirst: isFirst)
+        }
+    }
+    
+    private func requestItems(isFirst: Bool) {
+        if isFirst {
+            loadedPage = 0
+        }
+        repository.getItems(limt: Constants.requestLimit, offset: loadedPage * Constants.requestLimit) { result in
+            switch result {
+            case .success(let newItems):
                 if isFirst {
-                    items = ints
+                    items = newItems
                 } else {
-                    items.append(contentsOf: ints)
+                    items += newItems
                 }
+                loadedPage += 1
                 pagingState = .items
+                
+            case .failure(let error):
+                if isFirst {
+                    pagingState = .fullscreenError(error)
+                } else {
+                    pagingState = .pagingError(error)
+                }
             }
-        }
-    }
-}
-
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
-}
-
-class ItemsRepository {
-    var page = 0
-    let limit = 20
-    
-    func getItems(completion: @escaping ([Int]) -> Void) {
-        getItems(limt: limit, offset: limit * page) { [weak self] items in
-            self?.page += 1
-            completion(items)
-        }
-    }
-    
-    func getItems(limt: Int, offset: Int, completion: @escaping ([Int]) -> Void) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            let newItems = Array(offset..<(offset + limt))
-            completion(newItems)
         }
     }
 }
@@ -139,5 +135,11 @@ private struct PagingErrorStateView: View {
             }
         }
         .frame(height: 50)
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
     }
 }

@@ -8,36 +8,6 @@
 import SwiftUI
 import AdvancedList
 
-public enum PagingListState {
-    case items
-    
-    case fullscreenLoading
-    case fullscreenError(Error)
-    
-    case pagingLoading
-    case pagingError(Error)
-    case pagingEmpty
-}
-
-extension PagingListState: Equatable {
-    public static func == (lhs: PagingListState, rhs: PagingListState) -> Bool {
-        switch (lhs, rhs) {
-        case (.items, .items):
-            return true
-        case (.fullscreenLoading, .fullscreenLoading):
-            return true
-        case (.pagingLoading, .pagingLoading):
-            return true
-        case (.pagingError, .pagingError):
-            return true
-        case (.pagingEmpty, .pagingEmpty):
-            return true
-        default:
-            return false
-        }
-    }
-}
-
 public struct PagingList<
         Items: RandomAccessCollection,
         RowContent: View,
