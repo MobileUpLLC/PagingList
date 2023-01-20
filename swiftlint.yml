@@ -3,7 +3,7 @@ disabled_rules:
   - colon
   - type_body_length
   - notification_center_detachment
-  
+  - generic_type_name
 
 opt_in_rules:
   - anyobject_protocol

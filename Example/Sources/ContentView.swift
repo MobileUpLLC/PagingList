@@ -75,6 +75,7 @@ private struct FullscreenLoadingStateView: View {
             Color.pink
             Text("Loading")
         }
+        .ignoresSafeArea(edges: .all)
     }
 }
 
@@ -92,6 +93,7 @@ private struct FullscreenErrorStateView: View {
                 }
             }
         }
+        .ignoresSafeArea(edges: .all)
     }
 }
 

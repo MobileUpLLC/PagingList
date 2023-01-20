@@ -15,7 +15,6 @@ public enum PagingListState {
     
     case pagingLoading
     case pagingError(Error)
-    case pagingEmpty
 }
 
 extension PagingListState: Equatable {
@@ -28,8 +27,6 @@ extension PagingListState: Equatable {
         case (.pagingLoading, .pagingLoading):
             return true
         case (.pagingError, .pagingError):
-            return true
-        case (.pagingEmpty, .pagingEmpty):
             return true
         default:
             return false
