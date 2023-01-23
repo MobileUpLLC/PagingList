@@ -8,12 +8,15 @@
 import Foundation
 
 public enum PagingListState {
+    // Отображаются ячейки. Загрузки не происходит.
     case items
-    
+    // Полноэкранная первичная загрузка.
     case fullscreenLoading
+    // Полнокранная ошибка.
     case fullscreenError(Error)
-    
+    // Загрузка следующего пейджа. Показывается вьюшка загрузки внизу.
     case pagingLoading
+    // Ошибка загрузки следующего пейджа. Показывается вьюшка ошибки внизу.
     case pagingError(Error)
 }
 

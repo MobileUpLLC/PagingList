@@ -7,13 +7,12 @@
 
 import Foundation
 import PagingList
-import SwiftUI
 
-enum ItemsRepositoryError: Swift.Error {
+enum IntsRepositoryError: Swift.Error {
     case undefind
 }
 
-extension ItemsRepositoryError: LocalizedError {
+extension IntsRepositoryError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .undefind:
@@ -22,7 +21,7 @@ extension ItemsRepositoryError: LocalizedError {
     }
 }
 
-class ItemsRepository {
+class IntsRepository {
     private enum Constants {
         static let delay: TimeInterval = 1
     }
@@ -33,7 +32,7 @@ class ItemsRepository {
                 let items = Array(offset..<(offset + limt))
                 completion(.success(items))
             } else {
-                completion(.failure(ItemsRepositoryError.undefind))
+                completion(.failure(IntsRepositoryError.undefind))
             }
         }
     }
@@ -41,15 +40,4 @@ class ItemsRepository {
 
 extension Int: Identifiable {
     public var id: Int { self }
-}
-
-class IntsProvider: LimitOffsetPageProvider {
-    @Published var allItems: [Int] = []
-    var loadedPagesCount: Int = 0
-    
-    private let repository = ItemsRepository()
-    
-    func getItems(offset: Int, limit: Int, compeltion: @escaping (Result<[Int], Error>) -> Void) {
-        repository.getItems(limt: limit, offset: offset, completion: compeltion)
-    }
 }
