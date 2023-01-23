@@ -1,10 +1,3 @@
-//
-//  SwiftUIView.swift
-//  
-//
-//  Created by Nikolai Timonin on 17.01.2023.
-//
-
 import SwiftUI
 import AdvancedList
 
