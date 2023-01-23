@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import PagingList
+import SwiftUI
 
 enum ItemsRepositoryError: Swift.Error {
     case undefind
@@ -41,3 +43,13 @@ extension Int: Identifiable {
     public var id: Int { self }
 }
 
+class IntsProvider: LimitOffsetPageProvider {
+    @Published var allItems: [Int] = []
+    var loadedPagesCount: Int = 0
+    
+    private let repository = ItemsRepository()
+    
+    func getItems(offset: Int, limit: Int, compeltion: @escaping (Result<[Int], Error>) -> Void) {
+        repository.getItems(limt: limit, offset: offset, completion: compeltion)
+    }
+}

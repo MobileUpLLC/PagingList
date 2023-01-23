@@ -8,21 +8,21 @@
 import SwiftUI
 import PagingList
 
-struct ContentView: View {
+struct ContentView2: View {
     private enum Constants {
         static let requestLimit = 20
     }
     
-    private let repository = ItemsRepository()
+    private let provider = IntsProvider()
     
     @State private var loadedPage = 0
     @State private var items = [Int]()
     @State private var pagingState: PagingListState = .items
     
     var body: some View {
-        PagingList(
+        HPagingList(
             state: $pagingState,
-            items: items
+            provider: provider
         ) { item in
             Text("\(item)")
         } fullscreenEmptyView: {
@@ -34,7 +34,7 @@ struct ContentView: View {
                 // Заново запрашиваем первый пейдж
                 // с показом полноэкранной загрузки
                 pagingState = .fullscreenLoading
-                requestItems(isFirst: true)
+//                requestItems(isFirst: true)
             }
         } pagingLoadingView: {
             PagingLoadingStateView()
@@ -43,34 +43,7 @@ struct ContentView: View {
                 // Заново запрашиваем следующий пейдж
                 // с показом пейджинговой загрузки
                 pagingState = .pagingLoading
-                requestItems(isFirst: false)
-            }
-        } onPageRequest: { isFirst in
-            requestItems(isFirst: isFirst)
-        }
-    }
-    
-    private func requestItems(isFirst: Bool) {
-        if isFirst {
-//            loadedPage = 0
-        }
-        repository.getItems(limt: Constants.requestLimit, offset: loadedPage * Constants.requestLimit) { result in
-            switch result {
-            case .success(let newItems):
-//                if isFirst {
-//                    items = newItems
-//                } else {
-//                    items += newItems
-//                }
-//                loadedPage += 1
-                pagingState = .items
-                
-            case .failure(let error):
-                if isFirst {
-                    pagingState = .fullscreenError(error)
-                } else {
-                    pagingState = .pagingError(error)
-                }
+//                requestItems(isFirst: false)
             }
         }
     }
@@ -147,8 +120,8 @@ private struct PagingErrorStateView: View {
     }
 }
 
-struct HighlevelListView_Previews: PreviewProvider {
+struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView2()
+        ContentView()
     }
 }
