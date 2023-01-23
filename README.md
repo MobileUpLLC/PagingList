@@ -64,4 +64,4 @@ dependencies: [
 
 ## License
 
-PagingList is distributed under the [MIT License](https://gitlab.com/mobileup/mobileup/development-ios/paging-list/LICENSE).
+PagingList is distributed under the [MIT License](https://gitlab.com/mobileup/mobileup/development-ios/paging-list/-/blob/main/LICENSE).
