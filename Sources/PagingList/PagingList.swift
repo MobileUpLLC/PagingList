@@ -72,9 +72,9 @@ public struct PagingList<
             }
         )
         .refreshable(action: requestOnRefresh)
-        .onAppear {
-            requestFirstPage()
-        }
+//        .onAppear {
+//            requestFirstPage()
+//        }
     }
     
     public init(
