@@ -72,9 +72,6 @@ public struct PagingList<
             }
         )
         .refreshable(action: requestOnRefresh)
-//        .onAppear {
-//            requestFirstPage()
-//        }
     }
     
     public init(
@@ -115,9 +112,11 @@ public struct PagingList<
     
     @Sendable private func requestOnRefresh() async {
         return await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
-            state = .items
-            onPageRequest(true)
-            continuation.resume(returning: ())
+            DispatchQueue.main.async {
+                state = .items
+                onPageRequest(true)
+                continuation.resume(returning: ())
+            }
         }
     }
 }
