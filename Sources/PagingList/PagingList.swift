@@ -14,7 +14,7 @@ public struct PagingList<
     
     private var listState: ListState {
         switch state {
-        case .items, .pagingLoading, .pagingError:
+        case .items, .pagingLoading, .pagingError, .disabled:
             return .items
         case .fullscreenLoading:
             return .loading
@@ -62,6 +62,8 @@ public struct PagingList<
         .pagination(
             .init(type: .lastItem, shouldLoadNextPage: requestNextPage) {
                 switch state {
+                case .disabled:
+                    EmptyView()
                 case .items, .fullscreenLoading, .fullscreenError:
                     EmptyView()
                 case .pagingLoading:
@@ -103,6 +105,10 @@ public struct PagingList<
     
     private func requestNextPage() {
         if state == .pagingLoading {
+            return
+        }
+        
+        if state == .disabled {
             return
         }
         

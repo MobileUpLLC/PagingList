@@ -1,6 +1,8 @@
 import Foundation
 
 public enum PagingListState {
+    case disabled
+    
     // Отображаются ячейки. Загрузки не происходит.
     case items
     // Полноэкранная первичная загрузка.
@@ -16,6 +18,8 @@ public enum PagingListState {
 extension PagingListState: Equatable {
     public static func == (lhs: PagingListState, rhs: PagingListState) -> Bool {
         switch (lhs, rhs) {
+        case (.disabled, .disabled):
+            return true
         case (.items, .items):
             return true
         case (.fullscreenLoading, .fullscreenLoading):

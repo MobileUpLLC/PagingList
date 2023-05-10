@@ -28,7 +28,7 @@ class IntsRepository {
     func getItems(limt: Int, offset: Int, completion: @escaping (Result<[Int], Error>) -> Void) {
         DispatchQueue.main.asyncAfter(deadline: .now() + Constants.delay) {
             if Bool.random() {
-                let items = Array(offset..<(offset + limt))
+                let items = offset < 40 ? Array(offset..<(offset + limt)) : []
                 completion(.success(items))
             } else {
                 completion(.failure(IntsRepositoryError.undefind))

@@ -49,6 +49,11 @@ struct ContentView: View {
         } onPageRequest: { isFirst in
             requestItems(isFirst: isFirst)
         }
+        .animation(.easeIn(duration: 0.2), value: pagingState)
+        .onAppear {
+            pagingState = .fullscreenLoading
+            requestItems(isFirst: true)
+        }
     }
     
     private func requestItems(isFirst: Bool) {
@@ -70,10 +75,19 @@ struct ContentView: View {
                     // Добавляем дайтемы после загрузки каждого сдедующего пейджа.
                     items += newItems
                 }
-                // После загрузки пейджа инерементируем кол-во загруженных страниц.
-                loadedPagesCount += 1
-                // Выставляем состояние листа для показа айтемов.
-                pagingState = .items
+//                // После загрузки пейджа инерементируем кол-во загруженных страниц.
+//                loadedPagesCount += 1
+//                // Выставляем состояние листа для показа айтемов.
+//                pagingState = .items
+                
+                if newItems.isEmpty {
+                    pagingState = .disabled
+                } else {
+                    // После загрузки пейджа инерементируем кол-во загруженных страниц.
+                    loadedPagesCount += 1
+                    // Выставляем состояние листа для показа айтемов.
+                    pagingState = .items
+                }
                 
             case .failure(let error):
                 if isFirst {
