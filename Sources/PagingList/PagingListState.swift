@@ -1,8 +1,8 @@
 import Foundation
 
 public enum PagingListState {
+    // Паганация отключена.
     case disabled
-    
     // Отображаются ячейки. Загрузки не происходит.
     case items
     // Полноэкранная первичная загрузка.

@@ -37,8 +37,12 @@ struct ContentView: View {
                 // Заново запрашиваем первый пейдж.
                 requestItems(isFirst: true)
             }
+        } pagingDisabledView: {
+            PagingDisabledStateView()
+                .listRowSeparator(.hidden)
         } pagingLoadingView: {
             PagingLoadingStateView()
+                .listRowSeparator(.hidden)
         } pagingErrorView: { error in
             PagingErrorStateView(error: error) {
                 // Показываем загрузку пейджа.
@@ -46,10 +50,11 @@ struct ContentView: View {
                 // Заново запрашиваем следующий пейдж
                 requestItems(isFirst: false)
             }
+                .listRowSeparator(.hidden)
         } onPageRequest: { isFirst in
             requestItems(isFirst: isFirst)
         }
-        .animation(.easeIn(duration: 0.2), value: pagingState)
+        .listStyle(.plain)
         .onAppear {
             pagingState = .fullscreenLoading
             requestItems(isFirst: true)
@@ -75,19 +80,10 @@ struct ContentView: View {
                     // Добавляем дайтемы после загрузки каждого сдедующего пейджа.
                     items += newItems
                 }
-//                // После загрузки пейджа инерементируем кол-во загруженных страниц.
-//                loadedPagesCount += 1
-//                // Выставляем состояние листа для показа айтемов.
-//                pagingState = .items
-                
-                if newItems.isEmpty {
-                    pagingState = .disabled
-                } else {
-                    // После загрузки пейджа инерементируем кол-во загруженных страниц.
-                    loadedPagesCount += 1
-                    // Выставляем состояние листа для показа айтемов.
-                    pagingState = .items
-                }
+                // После загрузки пейджа инерементируем кол-во загруженных страниц.
+                loadedPagesCount += 1
+                // Выставляем состояние листа для показа айтемов либо выключаем пагинацию, если айтемы кончились.
+                pagingState = newItems.count < Constants.requestLimit ? .disabled : .items
                 
             case .failure(let error):
                 if isFirst {
@@ -149,9 +145,10 @@ private struct PagingLoadingStateView: View {
     }
 }
 
-private struct PagingIdleStateView: View {
+private struct PagingDisabledStateView: View {
     var body: some View {
-        EmptyView()
+        Color.clear
+            .frame(height: 50)
     }
 }
 

@@ -29,6 +29,7 @@ class IntsRepository {
         DispatchQueue.main.asyncAfter(deadline: .now() + Constants.delay) {
             if Bool.random() {
                 let items = offset < 40 ? Array(offset..<(offset + limt)) : []
+//                completion(.success(Array(items[..<5])))
                 completion(.success(items))
             } else {
                 completion(.failure(IntsRepositoryError.undefind))
