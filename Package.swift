@@ -14,15 +14,7 @@ let package = Package(
             name: "PagingList",
             targets: ["PagingList"])
     ],
-    dependencies: [
-        .package(
-            url: "https://github.com/crelies/AdvancedList",
-            .upToNextMajor(from: "8.0.0")
-        )
-    ],
     targets: [
-        .target(
-            name: "PagingList",
-            dependencies: ["AdvancedList"])
+        .target(name: "PagingList")
     ]
 )
