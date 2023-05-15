@@ -1,5 +1,4 @@
 import SwiftUI
-import AdvancedList
 
 public struct PagingList<
     Items: RandomAccessCollection,
