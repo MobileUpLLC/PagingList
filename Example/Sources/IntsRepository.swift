@@ -8,13 +8,13 @@
 import Foundation
 
 enum IntsRepositoryError: Swift.Error {
-    case undefind
+    case undefined
 }
 
 extension IntsRepositoryError: LocalizedError {
     var errorDescription: String? {
         switch self {
-        case .undefind:
+        case .undefined:
             return "Ooops:("
         }
     }
@@ -25,14 +25,13 @@ class IntsRepository {
         static let delay: TimeInterval = 1
     }
     
-    func getItems(limt: Int, offset: Int, completion: @escaping (Result<[Int], Error>) -> Void) {
+    func getItems(limit: Int, offset: Int, completion: @escaping (Result<[Int], Error>) -> Void) {
         DispatchQueue.main.asyncAfter(deadline: .now() + Constants.delay) {
             if Bool.random() {
-                let items = offset < 40 ? Array(offset..<(offset + limt)) : []
-//                completion(.success(Array(items[..<5])))
+                let items = offset < 40 ? Array(offset..<(offset + limit)) : []
                 completion(.success(items))
             } else {
-                completion(.failure(IntsRepositoryError.undefind))
+                completion(.failure(IntsRepositoryError.undefined))
             }
         }
     }
