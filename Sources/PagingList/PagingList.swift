@@ -1,27 +1,16 @@
 import SwiftUI
-import AdvancedList
 
 public struct PagingList<
-        Items: RandomAccessCollection,
-        RowContent: View,
-        FullscreenEmptyView: View,
-        FullscreenLoadingView: View,
-        FullscreenErrorView: View,
-        PagingLoadingView: View,
-        PagingErrorView: View
-    >: View where Items.Element: Identifiable {
+    Items: RandomAccessCollection,
+    RowContent: View,
+    FullscreenEmptyView: View,
+    FullscreenLoadingView: View,
+    FullscreenErrorView: View,
+    PagingDisabledView: View,
+    PagingLoadingView: View,
+    PagingErrorView: View
+>: View where Items.Element: Identifiable {
     public typealias PageRequestClosure = (Bool) -> Void
-    
-    private var listState: ListState {
-        switch state {
-        case .items, .pagingLoading, .pagingError:
-            return .items
-        case .fullscreenLoading:
-            return .loading
-        case .fullscreenError(let error):
-            return .error(error as NSError)
-        }
-    }
     
     @Binding private var state: PagingListState
     
@@ -32,58 +21,35 @@ public struct PagingList<
     private let fullscreenErrorViewBuilder: (Error) -> FullscreenErrorView
     private let fullscreenLoadingViewBuilder: () -> FullscreenLoadingView
     
+    private let pagingDisabledViewBuilder: () -> PagingDisabledView
     private let pagingLoadingViewBuilder: () -> PagingLoadingView
     private let pagingErrorViewBuilder: (Error) -> PagingErrorView
     
     private let onPageRequest: PageRequestClosure
     
     public var body: some View {
-        AdvancedList(
-            items,
-            content: rowContentBuilder,
-            listState: listState,
-            emptyStateView: {
-                // Полноэкранное пустое состояние
-                // Показывается когда listState = .item и data = [].
+        switch state {
+        case .disabled, .items, .pagingLoading, .pagingError:
+            if items.isEmpty {
                 fullscreenEmptyViewBuilder()
-            },
-            errorStateView: { error in
-                // Полноэкранное состояние ошибки
-                // Показывается когда listState = .error
-                // При нажатии на ретрай показывается FullscreenLoadingStateView
-                fullscreenErrorViewBuilder(error)
-            },
-            loadingStateView: {
-                // Полноэкранное состояние загрузки
-                // Показывается когда lisetState = .loading
-                fullscreenLoadingViewBuilder()
+            } else {
+                getList()
             }
-        )
-        .pagination(
-            .init(type: .lastItem, shouldLoadNextPage: requestNextPage) {
-                switch state {
-                case .items, .fullscreenLoading, .fullscreenError:
-                    EmptyView()
-                case .pagingLoading:
-                    pagingLoadingViewBuilder()
-                case .pagingError(let error):
-                    pagingErrorViewBuilder(error)
-                }
-            }
-        )
-        .refreshable(action: requestOnRefresh)
-        .onAppear {
-            requestFirstPage()
+        case .fullscreenLoading:
+            fullscreenLoadingViewBuilder()
+        case .fullscreenError(let error):
+            fullscreenErrorViewBuilder(error)
         }
     }
     
     public init(
         state: Binding<PagingListState>,
         items: Items,
-        @ViewBuilder rowContent: @escaping (Items.Element) -> RowContent,
+        rowContent: @escaping (Items.Element) -> RowContent,
         @ViewBuilder fullscreenEmptyView: @escaping () -> FullscreenEmptyView,
         @ViewBuilder fullscreenLoadingView: @escaping () -> FullscreenLoadingView,
         @ViewBuilder fullscreenErrorView: @escaping (Error) -> FullscreenErrorView,
+        @ViewBuilder pagingDisabledView: @escaping () -> PagingDisabledView,
         @ViewBuilder pagingLoadingView: @escaping () -> PagingLoadingView,
         @ViewBuilder pagingErrorView: @escaping (Error) -> PagingErrorView,
         onPageRequest: @escaping PageRequestClosure
@@ -94,14 +60,10 @@ public struct PagingList<
         self.fullscreenEmptyViewBuilder = fullscreenEmptyView
         self.fullscreenLoadingViewBuilder = fullscreenLoadingView
         self.fullscreenErrorViewBuilder = fullscreenErrorView
+        self.pagingDisabledViewBuilder = pagingDisabledView
         self.pagingLoadingViewBuilder = pagingLoadingView
         self.pagingErrorViewBuilder = pagingErrorView
         self.onPageRequest = onPageRequest
-    }
-    
-    private func requestFirstPage() {
-        state = .fullscreenLoading
-        onPageRequest(true)
     }
     
     private func requestNextPage() {
@@ -109,15 +71,42 @@ public struct PagingList<
             return
         }
         
+        if state == .disabled {
+            return
+        }
+        
         state = .pagingLoading
         onPageRequest(false)
     }
     
+    private func getList() -> some View {
+        List {
+            ForEach(items) { item in
+                rowContentBuilder(item)
+            }
+            switch state {
+            case .fullscreenLoading, .fullscreenError:
+                EmptyView()
+            case .disabled:
+                pagingDisabledViewBuilder()
+            case .items, .pagingLoading:
+                pagingLoadingViewBuilder()
+                    .onAppear {
+                        requestNextPage()
+                    }
+            case .pagingError(let error):
+                pagingErrorViewBuilder(error)
+            }
+        }
+        .refreshable(action: requestOnRefresh)
+    }
+    
     @Sendable private func requestOnRefresh() async {
         return await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
-            state = .items
-            onPageRequest(true)
-            continuation.resume(returning: ())
+            DispatchQueue.main.async {
+                onPageRequest(true)
+                continuation.resume(returning: ())
+            }
         }
     }
 }

@@ -37,8 +37,12 @@ struct ContentView: View {
                 // Заново запрашиваем первый пейдж.
                 requestItems(isFirst: true)
             }
+        } pagingDisabledView: {
+            PagingDisabledStateView()
+                .listRowSeparator(.hidden)
         } pagingLoadingView: {
             PagingLoadingStateView()
+                .listRowSeparator(.hidden)
         } pagingErrorView: { error in
             PagingErrorStateView(error: error) {
                 // Показываем загрузку пейджа.
@@ -46,19 +50,25 @@ struct ContentView: View {
                 // Заново запрашиваем следующий пейдж
                 requestItems(isFirst: false)
             }
+                .listRowSeparator(.hidden)
         } onPageRequest: { isFirst in
             requestItems(isFirst: isFirst)
+        }
+        .listStyle(.plain)
+        .onAppear {
+            pagingState = .fullscreenLoading
+            requestItems(isFirst: true)
         }
     }
     
     private func requestItems(isFirst: Bool) {
-        // Сбразываем счетчик уже загруженных страниц при загрузке первой.
+        // Сбрасываем счетчик уже загруженных страниц при загрузке первой.
         if isFirst {
             loadedPagesCount = 0
         }
         
         repository.getItems(
-            limt: Constants.requestLimit,
+            limit: Constants.requestLimit,
             offset: loadedPagesCount * Constants.requestLimit
         ) { result in
             switch result {
@@ -67,20 +77,20 @@ struct ContentView: View {
                     // Перезаписываем айтемы целиком после загрузки первого пейджа.
                     items = newItems
                 } else {
-                    // Добавляем дайтемы после загрузки каждого сдедующего пейджа.
+                    // Добавляем айтемы после загрузки каждого следующего пейджа.
                     items += newItems
                 }
-                // После загрузки пейджа инерементируем кол-во загруженных страниц.
+                // После загрузки пейджа инкрементируем кол-во загруженных страниц.
                 loadedPagesCount += 1
-                // Выставляем состояние листа для показа айтемов.
-                pagingState = .items
+                // Выставляем состояние листа для показа айтемов либо выключаем пагинацию, если айтемы кончились.
+                pagingState = newItems.count < Constants.requestLimit ? .disabled : .items
                 
             case .failure(let error):
                 if isFirst {
                     // При ошибке на первоначальной загрузке показываем полноэкранную ошибку.
                     pagingState = .fullscreenError(error)
                 } else {
-                    // При ошиьке на загрузке следующего пейджа показываем ошибку загрузки пейджа.
+                    // При ошибке на загрузке следующего пейджа показываем ошибку загрузки пейджа.
                     pagingState = .pagingError(error)
                 }
             }
@@ -135,9 +145,10 @@ private struct PagingLoadingStateView: View {
     }
 }
 
-private struct PagingIdleStateView: View {
+private struct PagingDisabledStateView: View {
     var body: some View {
-        EmptyView()
+        Color.clear
+            .frame(height: 50)
     }
 }
 
