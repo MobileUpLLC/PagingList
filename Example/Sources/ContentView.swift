@@ -13,12 +13,12 @@ struct ContentView: View {
         static let requestLimit = 20
     }
     
-    private let repository = IntsRepository()
-    
     @State private var loadedPagesCount = 0
     @State private var items = [Int]()
     @State private var pagingState: PagingListState = .items
    
+    private let repository = IntsRepository()
+    
     // swiftlint:disable vertical_parameter_alignment_on_call
     var body: some View {
         PagingList(
@@ -32,9 +32,9 @@ struct ContentView: View {
             FullscreenLoadingStateView()
         } fullscreenErrorView: { error in
             FullscreenErrorStateView(error: error) {
-                // Показываем полноэкранную загрузку.
+                // Show fullscreen loading on retry action.
                 pagingState = .fullscreenLoading
-                // Заново запрашиваем первый пейдж.
+                // Retrye first page request.
                 requestItems(isFirst: true)
             }
         } pagingDisabledView: {
@@ -45,9 +45,9 @@ struct ContentView: View {
                 .listRowSeparator(.hidden)
         } pagingErrorView: { error in
             PagingErrorStateView(error: error) {
-                // Показываем загрузку пейджа.
+                // Show next page loading on next page retry action.
                 pagingState = .pagingLoading
-                // Заново запрашиваем следующий пейдж
+                // Retry next page request.
                 requestItems(isFirst: false)
             }
                 .listRowSeparator(.hidden)
@@ -60,9 +60,10 @@ struct ContentView: View {
             requestItems(isFirst: true)
         }
     }
+    // swiftlint:enable vertical_parameter_alignment_on_call
     
     private func requestItems(isFirst: Bool) {
-        // Сбрасываем счетчик уже загруженных страниц при загрузке первой.
+        // Reset loaded pages counter when loading the first page.
         if isFirst {
             loadedPagesCount = 0
         }
@@ -74,23 +75,23 @@ struct ContentView: View {
             switch result {
             case .success(let newItems):
                 if isFirst {
-                    // Перезаписываем айтемы целиком после загрузки первого пейджа.
+                    // Rewrite all items after the first page is loaded.
                     items = newItems
                 } else {
-                    // Добавляем айтемы после загрузки каждого следующего пейджа.
+                    // Add new items after the every next page is loaded.
                     items += newItems
                 }
-                // После загрузки пейджа инкрементируем кол-во загруженных страниц.
+                // Increment loaded pages counter after the page is loaded.
                 loadedPagesCount += 1
-                // Выставляем состояние листа для показа айтемов либо выключаем пагинацию, если айтемы кончились.
-                pagingState = newItems.count < Constants.requestLimit ? .disabled : .items
                 
+                // Set the list paging state to display the items or disable pagination if there are no items remaining.
+                pagingState = newItems.count < Constants.requestLimit ? .disabled : .items
             case .failure(let error):
                 if isFirst {
-                    // При ошибке на первоначальной загрузке показываем полноэкранную ошибку.
+                    // Display a full screen error in case of the first page loading error.
                     pagingState = .fullscreenError(error)
                 } else {
-                    // При ошибке на загрузке следующего пейджа показываем ошибку загрузки пейджа.
+                    // Display a paging error in case of the next page loading error.
                     pagingState = .pagingError(error)
                 }
             }

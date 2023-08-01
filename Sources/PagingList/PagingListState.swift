@@ -1,17 +1,17 @@
 import Foundation
 
 public enum PagingListState {
-    // Паганация отключена.
+    // Paging disabled.
     case disabled
-    // Отображаются ячейки. Загрузки не происходит.
+    // Cells are visible. No loading next items here.
     case items
-    // Полноэкранная первичная загрузка.
+    // Fullscreen initial data loading(first page).
     case fullscreenLoading
-    // Полнокранная ошибка.
+    // Fullscreen error on loading first page.
     case fullscreenError(Error)
-    // Загрузка следующего пейджа. Показывается вьюшка загрузки внизу.
+    // Loading next page(> 1). Next page loading cell is visible here at the bottom fo the list.
     case pagingLoading
-    // Ошибка загрузки следующего пейджа. Показывается вьюшка ошибки внизу.
+    // Error on next page loading. Next page error cell is visible here at the bottom of the list.
     case pagingError(Error)
 }
 
