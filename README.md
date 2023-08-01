@@ -84,7 +84,8 @@ private func requestItems(isFirst: Bool) {
             // Increment loaded pages counter after the page is loaded.
             loadedPagesCount += 1
 
-            // Set the list paging state to display the items or disable pagination if there are no items remaining.
+            // Set the list paging state to display the items 
+            // or disable pagination if there are no items remaining.
             pagingState = newItems.count < Constants.requestLimit ? .disabled : .items
 
         case .failure(let error):
@@ -118,9 +119,12 @@ Under the hood `SwiftUI.List` is used, so any list modificators is available for
 ### SPM
 ```swift
 dependencies: [
-    .package(url: "https://gitlab.com/mobileup/mobileup/development-ios/paging-list", .upToNextMajor(from: "2.0.0"))
+    .package(
+        url: "https://gitlab.com/mobileup/mobileup/development-ios/paging-list", 
+        .upToNextMajor(from: "2.0.0")
+    )
 ]
 ```
 
 ## License
-PagingList is distributed under the [MIT License](https://gitlab.com/mobileup/mobileup/development-ios/paging-list/-/blob/main/LICENSE).
+PagingList is distributed under the [MIT License](https://github.com/MobileUpLLC/PagingList/blob/main/LICENSE).
