@@ -7,17 +7,30 @@
 <img src="https://img.shields.io/badge/SPM-compatible-green" alt="SPM Compatible">
 </p>
 
-List view with pull-to-refresh and paging.
+Lightweight list view with pull-to-refresh and paging.
+
+## Features
+* Initial data request.
+* Paging data request.
+* Error hadnling(with retry) for all request types.
+* Paging type agnostic. Works with *offset-limit*, *last item* and others paging types. 
 
 ## Usage
+1. Provide state views:
 
-1. Discuss with designers appearance of page loading/error view. This views appear **in front** of cells, not under the last cell, during loading next page or error.
-2. Prepare fullscreen loading/error/empty views.
-3. Prepare next page loading/error/disabled views. All of these views must know their height and be the same height.
-4. Prepare object, that handles initial request, next page request, all items and loaded pages count.
-    
+1.1 Views for fullscreen loading/error/emtpty data states:
+ - `FullscreenEmptyStateView`
+ - `FullscreenLoadingStateView`
+ - `FullscreenErrorStateView`
 
-##### PagingList Layout Example
+1.2 Views(cells) for next page loading/error/disabled states:
+ - `PagingLoadingStateView`
+ - `PagingErrorStateView`
+ - `PagingDisabledStateView`
+
+ **Notes:** All of these cell views must know their height and be the same height in order to disable list glitching on state changes.
+
+2. Layout `PagingList` with provided state views:
 ```swift
 @State private var pagingState: PagingListState = .items
 
@@ -39,16 +52,15 @@ PagingList(
 } pagingErrorView: { error in
     PagingErrorStateView(error: error)
 } onPageRequest: { isFirst in
-    // Request items.
-    // Update paging list state.
+    // Request items and update paging state.
+    requestItems(isFirst: isFirst)
 }
 ```  
 
-##### Request Items Example 
+3. Provde items request handler:
 ```swift
 @State private var items = [Int]()
 @State private var loadedPagesCount = 0
-@State private var pagingState: PagingListState = .items
     
 private func requestItems(isFirst: Bool) {
     // Reset loaded pages counter when loading the first page.
@@ -87,9 +99,14 @@ private func requestItems(isFirst: Bool) {
     }
 }
 ```
-##### Notes
+**Notes:**
 * It's necessary to turn off the pagination if there are no items remaining.
-* In case of the next page loading error it's necessary to tap on the "Retry" button. The request will not be automatically reissued when scrolling
+* In case of the next page loading error it's necessary to tap on the "Retry" button. The request will not be automatically reissued when scrolling.
+
+## Iplementation details
+PagindList doesn't use any external dependencies.
+
+Under the hood `SwiftUI.List` is used, so any list modificators is available for both `PagingList` iteself and item cell view.
 
 ## Requirements
 
@@ -98,14 +115,7 @@ private func requestItems(isFirst: Bool) {
 
 ## Installation
 
-PagingList has no external dependencies.
-
-### Manual
-
-Download and drag files from Source folder into your Xcode project.
-
 ### SPM
-
 ```swift
 dependencies: [
     .package(url: "https://gitlab.com/mobileup/mobileup/development-ios/paging-list", .upToNextMajor(from: "2.0.0"))
@@ -113,5 +123,4 @@ dependencies: [
 ```
 
 ## License
-
 PagingList is distributed under the [MIT License](https://gitlab.com/mobileup/mobileup/development-ios/paging-list/-/blob/main/LICENSE).
