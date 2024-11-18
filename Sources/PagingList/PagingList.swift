@@ -11,6 +11,7 @@ public struct PagingList<
     PagingErrorView: View
 >: View where Items.Element: Identifiable {
     public typealias PageRequestClosure = (Bool) -> Void
+    public typealias RefreshClosure = () async -> Void
     
     @Binding private var state: PagingListState
     
@@ -26,20 +27,42 @@ public struct PagingList<
     private let pagingErrorViewBuilder: (Error) -> PagingErrorView
     
     private let onPageRequest: PageRequestClosure
+    private let onRefreshRequest: RefreshClosure
     
     public var body: some View {
-        switch state {
-        case .disabled, .items, .pagingLoading, .pagingError:
-            if items.isEmpty {
-                fullscreenEmptyViewBuilder()
-            } else {
-                getList()
+        List {
+            ForEach(items) { item in
+                rowContentBuilder(item)
             }
-        case .fullscreenLoading:
-            fullscreenLoadingViewBuilder()
-        case .fullscreenError(let error):
-            fullscreenErrorViewBuilder(error)
+            switch state {
+            case .fullscreenLoading, .fullscreenError:
+                EmptyView()
+            case .disabled:
+                pagingDisabledViewBuilder()
+            case .items, .pagingLoading, .refresh:
+                pagingLoadingViewBuilder()
+                    .onAppear {
+                        requestNextPage()
+                    }
+            case .pagingError(let error):
+                pagingErrorViewBuilder(error)
+            }
         }
+        .overlay {
+            switch state {
+            case .disabled, .items:
+                if items.isEmpty {
+                    fullscreenEmptyViewBuilder()
+                }
+            case .fullscreenLoading:
+                fullscreenLoadingViewBuilder()
+            case .fullscreenError(let error):
+                fullscreenErrorViewBuilder(error)
+            default:
+                EmptyView()
+            }
+        }
+        .refreshable(action: requestOnRefresh)
     }
     
     public init(
@@ -52,7 +75,8 @@ public struct PagingList<
         @ViewBuilder pagingDisabledView: @escaping () -> PagingDisabledView,
         @ViewBuilder pagingLoadingView: @escaping () -> PagingLoadingView,
         @ViewBuilder pagingErrorView: @escaping (Error) -> PagingErrorView,
-        onPageRequest: @escaping PageRequestClosure
+        onPageRequest: @escaping PageRequestClosure,
+        onRefreshRequest: @escaping RefreshClosure
     ) {
         self._state = state
         self.items = items
@@ -64,6 +88,7 @@ public struct PagingList<
         self.pagingLoadingViewBuilder = pagingLoadingView
         self.pagingErrorViewBuilder = pagingErrorView
         self.onPageRequest = onPageRequest
+        self.onRefreshRequest = onRefreshRequest
     }
     
     private func requestNextPage() {
@@ -79,34 +104,7 @@ public struct PagingList<
         onPageRequest(false)
     }
     
-    private func getList() -> some View {
-        List {
-            ForEach(items) { item in
-                rowContentBuilder(item)
-            }
-            switch state {
-            case .fullscreenLoading, .fullscreenError:
-                EmptyView()
-            case .disabled:
-                pagingDisabledViewBuilder()
-            case .items, .pagingLoading:
-                pagingLoadingViewBuilder()
-                    .onAppear {
-                        requestNextPage()
-                    }
-            case .pagingError(let error):
-                pagingErrorViewBuilder(error)
-            }
-        }
-        .refreshable(action: requestOnRefresh)
-    }
-    
     @Sendable private func requestOnRefresh() async {
-        return await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
-            DispatchQueue.main.async {
-                onPageRequest(true)
-                continuation.resume(returning: ())
-            }
-        }
+        await onRefreshRequest()
     }
 }

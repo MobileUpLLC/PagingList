@@ -22,17 +22,19 @@ extension IntsRepositoryError: LocalizedError {
 
 class IntsRepository {
     private enum Constants {
-        static let delay: TimeInterval = 1
+        static let delayInNanoseconds: UInt64 = 300_000_0000
     }
     
-    func getItems(limit: Int, offset: Int, completion: @escaping (Result<[Int], Error>) -> Void) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.delay) {
-            if Bool.random() {
-                let items = offset < 40 ? Array(offset..<(offset + limit)) : []
-                completion(.success(items))
-            } else {
-                completion(.failure(IntsRepositoryError.undefined))
-            }
+    func getItems(limit: Int, offset: Int) async throws -> [Int] {
+        await Task {
+            try? await Task.sleep(nanoseconds: Constants.delayInNanoseconds)
+        }.value
+        
+        if Bool.random() {
+            let items = offset < 65 ? Array(offset..<(offset + limit)) : []
+            return items
+        } else {
+            throw IntsRepositoryError.undefined
         }
     }
 }

@@ -13,6 +13,8 @@ public enum PagingListState {
     case pagingLoading
     // Error on next page loading. Next page error cell is visible here at the bottom of the list.
     case pagingError(Error)
+    // Updating content with pull to refresh
+    case refresh
 }
 
 extension PagingListState: Equatable {
@@ -28,8 +30,11 @@ extension PagingListState: Equatable {
             return true
         case (.pagingError, .pagingError):
             return true
+        case (.refresh, .refresh):
+            return true
         default:
             return false
         }
     }
 }
+

@@ -12,11 +12,11 @@ Lightweight list view with pull-to-refresh and paging.
 ## Features
 * Initial data request.
 * Paging data request.
-* Error handling(with retry) for all request types.
+* Error hadnling(with retry) for all request types.
 * Paging type agnostic. Works with *offset-limit*, *last item* and others paging types. 
 
 ## Usage
-1. Provide your state views:
+1. Provide state views:
 
 1.1 Views for fullscreen loading/error/emtpty data states:
  - `FullscreenEmptyStateView`
@@ -30,7 +30,7 @@ Lightweight list view with pull-to-refresh and paging.
 
  **Notes:** All of these cell views must know their height and be the same height in order to disable list glitching on state changes.
 
-2. Layout `PagingList` with state views:
+2. Layout `PagingList` with provided state views:
 ```swift
 @State private var pagingState: PagingListState = .items
 
@@ -52,8 +52,11 @@ PagingList(
 } pagingErrorView: { error in
     PagingErrorStateView(error: error)
 } onPageRequest: { isFirst in
-    // Request items and update paging state.
+    // First loading items and loading paging state.
     requestItems(isFirst: isFirst)
+} onRefreshRequest: { isFirst in
+    // Refreshing content.
+    await refreshItems(isFirst: isFirst)
 }
 ```  
 
@@ -62,43 +65,60 @@ PagingList(
 @State private var items = [Int]()
 @State private var loadedPagesCount = 0
 
-// Items provider that supports offset-limit requests.
-private let repository = IntsRepository()
-
+// Sync method for first loading and pagination loading content.
 private func requestItems(isFirst: Bool) {
-    // Reset loaded pages counter when loading the first page.
-    if isFirst {
-        loadedPagesCount = 0
+    Task {
+        await requestItems(isFirst: isFirst)
     }
+}
     
-    repository.getItems(
-        limt: Constants.requestLimit,
-        offset: loadedPagesCount * Constants.requestLimit
-    ) { result in
-        switch result {
-        case .success(let newItems):
-            if isFirst {
-                // Rewrite all items after the first page is loaded.
-                items = newItems
-            } else {
-                // Add new items after the every next page is loaded.
-                items += newItems
-            }
-            // Increment loaded pages counter after the page is loaded.
-            loadedPagesCount += 1
-
-            // Set the list paging state to display the items 
-            // or disable pagination if there are no items remaining.
-            pagingState = newItems.count < Constants.requestLimit ? .disabled : .items
-
-        case .failure(let error):
-            if isFirst {
-                // Display a full screen error in case of the first page loading error.
-                pagingState = .fullscreenError(error)
-            } else {
-                // Display a paging error in case of the next page loading error.
-                pagingState = .pagingError(error)
-            }
+// Async method for loading and refreshing content.
+private func refreshItems() async {
+    await requestItems(isFirst: true)
+}
+    
+// Async method for loading content.
+private func requestItems(isFirst: Bool) async {
+    if isFirst, items.isEmpty == false {
+        // Refresh content.
+        pagingState = .refresh
+        loadedPagesCount = 0
+    } else if isFirst {
+        // Reset loaded pages counter when loading the first page.
+        pagingState = .fullscreenLoading
+        loadedPagesCount = 0
+    } else {
+        // Loading pagination pages.
+        pagingState = .pagingLoading
+    }
+        
+    do {
+        let newItems = try await repository.getItems(
+            limit: Constants.requestLimit,
+            offset: loadedPagesCount * Constants.requestLimit
+        )
+        
+        if isFirst {
+            // Rewrite all items after the first page is loaded.
+            items = newItems
+        } else {
+            // Add new items after the every next page is loaded.
+            items += newItems
+        }
+        // Increment loaded pages counter after the page is loaded.
+        loadedPagesCount += 1
+        
+        // Set the list paging state to display the items or disable pagination if there are no items remaining.
+        pagingState = newItems.count < Constants.requestLimit ? .disabled : .items
+    } catch let error {
+        if isFirst {
+            // Display a full screen error in case of the first page loading error.
+            pagingState = .fullscreenError(error)
+            // Сlearing items for correct operation of the state loader.
+            items = []
+        } else {
+            // Display a paging error in case of the next page loading error.
+            pagingState = .pagingError(error)
         }
     }
 }
@@ -107,10 +127,10 @@ private func requestItems(isFirst: Bool) {
 * It's necessary to turn off the pagination if there are no items remaining.
 * In case of the next page loading error it's necessary to tap on the "Retry" button. The request will not be automatically reissued when scrolling.
 
-## Implementation details
+## Iplementation details
 PagindList doesn't use any external dependencies.
 
-Under the hood `SwiftUI.List` is used, so any list modificators are available for both `PagingList` iteself and item cell view.
+Under the hood `SwiftUI.List` is used, so any list modificators is available for both `PagingList` iteself and item cell view.
 
 ## Requirements
 
@@ -119,15 +139,12 @@ Under the hood `SwiftUI.List` is used, so any list modificators are available fo
 
 ## Installation
 
-#### SPM
+### SPM
 ```swift
 dependencies: [
-    .package(
-        url: "https://gitlab.com/mobileup/mobileup/development-ios/paging-list", 
-        .upToNextMajor(from: "2.0.0")
-    )
+    .package(url: "https://gitlab.com/mobileup/mobileup/development-ios/paging-list", .upToNextMajor(from: "2.0.0"))
 ]
 ```
 
 ## License
-PagingList is distributed under the [MIT License](https://github.com/MobileUpLLC/PagingList/blob/main/LICENSE).
+PagingList is distributed under the [MIT License](https://gitlab.com/mobileup/mobileup/development-ios/paging-list/-/blob/main/LICENSE).
