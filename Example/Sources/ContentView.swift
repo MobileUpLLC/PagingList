@@ -16,50 +16,61 @@ struct ContentView: View {
     @State private var loadedPagesCount = 0
     @State private var items = [Int]()
     @State private var pagingState: PagingListState = .items
-   
+    
+    @State var navigationPath: [Int] = []
+    
     private let repository = IntsRepository()
     
     // swiftlint:disable vertical_parameter_alignment_on_call
     var body: some View {
-        PagingList(
-            state: $pagingState,
-            items: items
-        ) { item in
-            Text("\(item)")
-        } fullscreenEmptyView: {
-            FullscreenEmptyStateView()
-        } fullscreenLoadingView: {
-            FullscreenLoadingStateView()
-        } fullscreenErrorView: { error in
-            FullscreenErrorStateView(error: error) {
-                // Show fullscreen loading on retry action.
-                pagingState = .fullscreenLoading
-                // Retrye first page request.
-                requestItems(isFirst: true)
+        NavigationStack(path: $navigationPath) {
+            VStack {
+                Text("Tap to go list with section")
+                    .onTapGesture { navigationPath.append(0) }
+                PagingList(
+                    state: $pagingState,
+                    items: items
+                ) { item in
+                    Text("\(item)")
+                } fullscreenEmptyView: {
+                    FullscreenEmptyStateView()
+                } fullscreenLoadingView: {
+                    FullscreenLoadingStateView()
+                } fullscreenErrorView: { error in
+                    FullscreenErrorStateView(error: error) {
+                        // Show fullscreen loading on retry action.
+                        pagingState = .fullscreenLoading
+                        // Retrye first page request.
+                        requestItems(isFirst: true)
+                    }
+                } pagingDisabledView: {
+                    PagingDisabledStateView()
+                        .listRowSeparator(.hidden)
+                } pagingLoadingView: {
+                    PagingLoadingStateView()
+                        .listRowSeparator(.hidden)
+                } pagingErrorView: { error in
+                    PagingErrorStateView(error: error) {
+                        // Show next page loading on next page retry action.
+                        pagingState = .pagingLoading
+                        // Retry next page request.
+                        requestItems(isFirst: false)
+                    }
+                    .listRowSeparator(.hidden)
+                } onPageRequest: { isFirst in
+                    requestItems(isFirst: isFirst)
+                } onRefreshRequest: {
+                    await refreshItems()
+                }
+                .listStyle(.plain)
+                .onAppear {
+                    pagingState = .fullscreenLoading
+                    requestItems(isFirst: true)
+                }
+                .navigationDestination(for: Int.self) { _ in
+                    ListWithSection()
+                }
             }
-        } pagingDisabledView: {
-            PagingDisabledStateView()
-                .listRowSeparator(.hidden)
-        } pagingLoadingView: {
-            PagingLoadingStateView()
-                .listRowSeparator(.hidden)
-        } pagingErrorView: { error in
-            PagingErrorStateView(error: error) {
-                // Show next page loading on next page retry action.
-                pagingState = .pagingLoading
-                // Retry next page request.
-                requestItems(isFirst: false)
-            }
-                .listRowSeparator(.hidden)
-        } onPageRequest: { isFirst in
-            requestItems(isFirst: isFirst)
-        } onRefreshRequest: {
-            await refreshItems()
-        }
-        .listStyle(.plain)
-        .onAppear {
-            pagingState = .fullscreenLoading
-            requestItems(isFirst: true)
         }
     }
     // swiftlint:enable vertical_parameter_alignment_on_call
@@ -120,78 +131,6 @@ struct ContentView: View {
                 pagingState = .pagingError(error)
             }
         }
-    }
-}
-
-private struct FullscreenLoadingStateView: View {
-    var body: some View {
-        ZStack {
-            Color.pink
-            Text("Loading")
-        }
-        .ignoresSafeArea(edges: .all)
-    }
-}
-
-private struct FullscreenErrorStateView: View {
-    var error: Swift.Error
-    var onRetryAction: () -> Void
-    
-    var body: some View {
-        ZStack {
-            Color.red
-            VStack {
-                Text(error.localizedDescription)
-                Button(action: onRetryAction) {
-                    Text("Retry")
-                }
-            }
-        }
-        .ignoresSafeArea(edges: .all)
-    }
-}
-
-private struct FullscreenEmptyStateView: View {
-    var body: some View {
-        ZStack {
-            Color.green
-            Text("Empty here")
-        }
-    }
-}
-
-private struct PagingLoadingStateView: View {
-    var body: some View {
-        ZStack {
-            Color.gray
-            Text("Loading next page")
-        }
-        .frame(height: 50)
-    }
-}
-
-private struct PagingDisabledStateView: View {
-    var body: some View {
-        Color.clear
-            .frame(height: 50)
-    }
-}
-
-private struct PagingErrorStateView: View {
-    var error: Swift.Error
-    var onRetryAction: () -> Void
-    
-    var body: some View {
-        ZStack {
-            Color.red
-            VStack {
-                Text(error.localizedDescription)
-                Button(action: onRetryAction) {
-                    Text("Retry")
-                }
-            }
-        }
-        .frame(height: 50)
     }
 }
 
