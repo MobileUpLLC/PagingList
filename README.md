@@ -31,6 +31,8 @@ Lightweight list view with pull-to-refresh and paging.
  **Notes:** All of these cell views must know their height and be the same height in order to disable list glitching on state changes.
 
 2. Layout `PagingList` with state views:
+
+2.1 Layout paging list without sections:
 ```swift
 @State private var pagingState: PagingListState = .items
 
@@ -58,7 +60,63 @@ PagingList(
     // Refreshing content.
     await refreshItems(isFirst: isFirst)
 }
-```  
+```
+
+2.2 Layout paging list with sections:
+```swift
+PagingList(
+    state: $pagingState,
+    items: myItems
+) { item in
+    Section(content: {
+        ForEach(item.items) { item in
+            Text("\(item)")
+        }
+    }, header: {
+        RunningTitleView(title: item.title)
+            .listRowInsets(EdgeInsets())
+    }, footer: {
+        RunningTitleView(title: "Footer")
+            .listRowInsets(EdgeInsets())
+    })
+} fullscreenEmptyView: {
+    FullscreenEmptyStateView()
+} fullscreenLoadingView: {
+    FullscreenLoadingStateView()
+} fullscreenErrorView: { error in
+    FullscreenErrorStateView(error: error)
+} pagingDisabledView: {
+    PagingDisabledStateView()
+} pagingLoadingView: {
+    PagingLoadingStateView()
+} pagingErrorView: { error in
+    PagingErrorStateView(error: error)
+} onPageRequest: { isFirst in
+    // First loading items and loading paging state.
+    requestItems(isFirst: isFirst)
+} onRefreshRequest: { isFirst in
+    // Refreshing content.
+    await refreshItems(isFirst: isFirst)
+}
+.listStyle(.grouped)
+.scrollContentBackground(.hidden)
+```
+
+2.3 Modifiers for section customization:
+```swift
+// modifier to setup padding for section
+// footer without padding
+.listRowInsets(EdgeInsets())
+
+// sheet style modifier .grouped to customize non-sticky header and footer
+// change to .plain for sticky header
+// change to .inset for sticky header and footer
+.listStyle(.grouped)
+
+// modifier to hide the system background of the scroll view list
+.scrollContentBackground(.hidden)
+```
+  
 
 3. Provde items request handler:
 ```swift
