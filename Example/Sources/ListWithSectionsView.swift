@@ -171,8 +171,8 @@ private struct RunningTitleView: View {
     }
 }
 
-struct ListWithSection_Previews: PreviewProvider {
+struct ListWithSectionsView_Previews: PreviewProvider {
     static var previews: some View {
-        ListWithSection()
+        ListWithSectionsView()
     }
 }
