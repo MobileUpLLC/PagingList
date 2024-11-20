@@ -128,10 +128,13 @@ struct ContentView: View {
             pagingState = newItems.count < Constants.requestLimit ? .disabled : .items
         } catch let error {
             if isFirst {
+                // Сlearing items for correct operation of the state loader when call pull to refresh.
+                if pagingState == .refresh {
+                    items = []
+                }
+                
                 // Display a full screen error in case of the first page loading error.
                 pagingState = .fullscreenError(error)
-                // Сlearing items for correct operation of the state loader.
-                items = []
             } else {
                 // Display a paging error in case of the next page loading error.
                 pagingState = .pagingError(error)

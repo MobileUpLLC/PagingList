@@ -22,7 +22,7 @@ extension IntsRepositoryError: LocalizedError {
 
 class IntsRepository {
     private enum Constants {
-        static let delayInNanoseconds: UInt64 = 300_000_0000
+        static let delayInNanoseconds: UInt64 = 3_000_000_000
     }
     
     func getItems(limit: Int, offset: Int) async throws -> [Int] {
