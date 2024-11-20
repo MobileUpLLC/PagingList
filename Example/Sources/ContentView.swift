@@ -8,6 +8,12 @@
 import SwiftUI
 import PagingList
 
+enum PagingListType: Equatable, Hashable, Identifiable {
+    case listWithSection
+    
+    var id: Self { self }
+}
+
 struct ContentView: View {
     private enum Constants {
         static let requestLimit = 20
@@ -17,7 +23,7 @@ struct ContentView: View {
     @State private var items = [Int]()
     @State private var pagingState: PagingListState = .items
     
-    @State var navigationPath: [Int] = []
+    @State var navigationPath: [PagingListType] = []
     
     private let repository = IntsRepository()
     
@@ -26,7 +32,7 @@ struct ContentView: View {
         NavigationStack(path: $navigationPath) {
             VStack {
                 Text("Tap to go list with section")
-                    .onTapGesture { navigationPath.append(0) }
+                    .onTapGesture { navigationPath.append(.listWithSection) }
                 PagingList(
                     state: $pagingState,
                     items: items
@@ -67,7 +73,7 @@ struct ContentView: View {
                     pagingState = .fullscreenLoading
                     requestItems(isFirst: true)
                 }
-                .navigationDestination(for: Int.self) { _ in
+                .navigationDestination(for: PagingListType.self) { _ in
                     ListWithSection()
                 }
             }
