@@ -12,7 +12,7 @@ Lightweight list view with pull-to-refresh and paging.
 ## Features
 * Initial data request.
 * Paging data request.
-* Error hadnling(with retry) for all request types.
+* Error handling(with retry) for all request types.
 * Paging type agnostic. Works with *offset-limit*, *last item* and others paging types. 
 
 ## Usage
@@ -127,10 +127,10 @@ private func requestItems(isFirst: Bool) async {
 * It's necessary to turn off the pagination if there are no items remaining.
 * In case of the next page loading error it's necessary to tap on the "Retry" button. The request will not be automatically reissued when scrolling.
 
-## Iplementation details
+## Implementation details
 PagindList doesn't use any external dependencies.
 
-Under the hood `SwiftUI.List` is used, so any list modificators is available for both `PagingList` iteself and item cell view.
+Under the hood `SwiftUI.List` is used, so any list modificators are available for both `PagingList` iteself and item cell view.
 
 ## Requirements
 
@@ -142,9 +142,12 @@ Under the hood `SwiftUI.List` is used, so any list modificators is available for
 ### SPM
 ```swift
 dependencies: [
-    .package(url: "https://gitlab.com/mobileup/mobileup/development-ios/paging-list", .upToNextMajor(from: "2.0.0"))
+    .package(
+        url: "https://gitlab.com/mobileup/mobileup/development-ios/paging-list", 
+        .upToNextMajor(from: "2.0.0")
+    )
 ]
 ```
 
 ## License
-PagingList is distributed under the [MIT License](https://gitlab.com/mobileup/mobileup/development-ios/paging-list/-/blob/main/LICENSE).
+PagingList is distributed under the [MIT License](https://github.com/MobileUpLLC/PagingList/blob/main/LICENSE).
