@@ -74,7 +74,7 @@ struct ContentView: View {
                     requestItems(isFirst: true)
                 }
                 .navigationDestination(for: PagingListType.self) { _ in
-                    ListWithSection()
+                    ListWithSectionsView()
                 }
             }
         }

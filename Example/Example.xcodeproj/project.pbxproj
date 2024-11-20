@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		733AAF712CECDECA00FAB5AF /* ListWithSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 733AAF702CECDECA00FAB5AF /* ListWithSection.swift */; };
+		733AAF712CECDECA00FAB5AF /* ListWithSectionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 733AAF702CECDECA00FAB5AF /* ListWithSectionsView.swift */; };
 		733AAF732CECEC6500FAB5AF /* ListStateViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 733AAF722CECEC6500FAB5AF /* ListStateViews.swift */; };
 		E10FA35429770CCB0031ED65 /* PagingList in Frameworks */ = {isa = PBXBuildFile; productRef = E10FA35329770CCB0031ED65 /* PagingList */; };
 		E10FA356297A68830031ED65 /* IntsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10FA355297A68830031ED65 /* IntsRepository.swift */; };
@@ -18,7 +18,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		733AAF702CECDECA00FAB5AF /* ListWithSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListWithSection.swift; sourceTree = "<group>"; };
+		733AAF702CECDECA00FAB5AF /* ListWithSectionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListWithSectionsView.swift; sourceTree = "<group>"; };
 		733AAF722CECEC6500FAB5AF /* ListStateViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListStateViews.swift; sourceTree = "<group>"; };
 		E10FA35229770CBE0031ED65 /* PagingList */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = PagingList; path = ..; sourceTree = "<group>"; };
 		E10FA355297A68830031ED65 /* IntsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntsRepository.swift; sourceTree = "<group>"; };
@@ -74,7 +74,7 @@
 				E1FDB14B29770604003CC2A5 /* ContentView.swift */,
 				733AAF722CECEC6500FAB5AF /* ListStateViews.swift */,
 				E10FA355297A68830031ED65 /* IntsRepository.swift */,
-				733AAF702CECDECA00FAB5AF /* ListWithSection.swift */,
+				733AAF702CECDECA00FAB5AF /* ListWithSectionsView.swift */,
 				E1FDB14D29770605003CC2A5 /* Assets.xcassets */,
 				E1FDB14F29770605003CC2A5 /* Preview Content */,
 			);
@@ -193,7 +193,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E10FA356297A68830031ED65 /* IntsRepository.swift in Sources */,
-				733AAF712CECDECA00FAB5AF /* ListWithSection.swift in Sources */,
+				733AAF712CECDECA00FAB5AF /* ListWithSectionsView.swift in Sources */,
 				E1FDB14C29770604003CC2A5 /* ContentView.swift in Sources */,
 				733AAF732CECEC6500FAB5AF /* ListStateViews.swift in Sources */,
 				E1FDB14A29770604003CC2A5 /* ExampleApp.swift in Sources */,

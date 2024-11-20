@@ -1,5 +1,5 @@
 //
-//  ListWithSection.swift
+//  ListWithSectionsView.swift
 //  Example
 //
 //  Created by Victor Kostin on 19.11.2024.
@@ -14,12 +14,12 @@ private struct SectionViewItem: Identifiable {
     let items: [Int]
 }
 
-struct ListWithSection: View {
+struct ListWithSectionsView: View {
     private enum Constants {
         static let requestLimit = 20
     }
     
-    @State private var loadedPagesCount = 0
+    @State private var loadedSectionCount = 0
     @State private var sections: [SectionViewItem] = []
     @State private var pagingState: PagingListState = .items
     
@@ -102,45 +102,47 @@ struct ListWithSection: View {
         if isFirst, sections.isEmpty == false {
             // Refresh content.
             pagingState = .refresh
-            loadedPagesCount = 0
+            loadedSectionCount = 0
         } else if isFirst {
-            // Reset loaded pages counter when loading the first page.
+            // Reset loaded pages counter when loading the first section.
             pagingState = .fullscreenLoading
-            loadedPagesCount = 0
+            loadedSectionCount = 0
         } else {
-            // Loading pagination pages.
+            // Loading pagination section.
             pagingState = .pagingLoading
         }
         
         do {
             let newItems = try await repository.getItems(
                 limit: Constants.requestLimit,
-                offset: loadedPagesCount * Constants.requestLimit
+                offset: loadedSectionCount * Constants.requestLimit
             )
+            let newSection = getSectionItem(with: newItems)
             
-            if isFirst, sections.isEmpty {
-                self.sections = []
-                self.sections.append(getSectionItem(with: newItems))
-            } else if isFirst, sections.isEmpty == false {
-                self.sections = []
-                self.sections.append(getSectionItem(with: newItems))
+            if isFirst {
+                // Rewrite all sections after the first page is loaded.
+                self.sections = [newSection]
             } else {
-                self.sections.append(getSectionItem(with: newItems))
+                // Add new sections after the every next page is loaded.
+                self.sections.append(newSection)
             }
             
             // Increment loaded pages counter after the page is loaded.
-            loadedPagesCount += 1
+            loadedSectionCount += 1
             
             // Set the list paging state to display the items or disable pagination if there are no items remaining.
             pagingState = newItems.count < Constants.requestLimit ? .disabled : .items
         } catch let error {
             if isFirst {
-                // Display a full screen error in case of the first page loading error.
+                // Сlearing items for correct operation of the state loader when call pull to refresh.
+                if pagingState == .refresh {
+                    sections = []
+                }
+                
+                // Display a full screen error in case of the first section loading error.
                 pagingState = .fullscreenError(error)
-                // Сlearing items for correct operation of the state loader.
-                sections = []
             } else {
-                // Display a paging error in case of the next page loading error.
+                // Display a paging error in case of the next section loading error.
                 pagingState = .pagingError(error)
             }
         }
