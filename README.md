@@ -16,7 +16,7 @@ Lightweight list view with pull-to-refresh and paging.
 * Paging type agnostic. Works with *offset-limit*, *last item* and others paging types. 
 
 ## Usage
-1. Provide state views:
+1. Provide your state views:
 
 1.1 Views for fullscreen loading/error/emtpty data states:
  - `FullscreenEmptyStateView`
@@ -30,7 +30,7 @@ Lightweight list view with pull-to-refresh and paging.
 
  **Notes:** All of these cell views must know their height and be the same height in order to disable list glitching on state changes.
 
-2. Layout `PagingList` with provided state views:
+2. Layout `PagingList` with state views:
 ```swift
 @State private var pagingState: PagingListState = .items
 
@@ -139,7 +139,7 @@ Under the hood `SwiftUI.List` is used, so any list modificators are available fo
 
 ## Installation
 
-### SPM
+#### SPM
 ```swift
 dependencies: [
     .package(
