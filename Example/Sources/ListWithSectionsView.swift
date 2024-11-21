@@ -40,7 +40,7 @@ struct ListWithSectionsView: View {
                 RunningTitleView(title: "Footer")
                 // modifier to setup padding for section
                 // footer without padding
-                .listRowInsets(EdgeInsets())
+                    .listRowInsets(EdgeInsets())
             })
         } fullscreenEmptyView: {
             FullscreenEmptyStateView()
@@ -94,17 +94,33 @@ struct ListWithSectionsView: View {
     
     // Async method for loading and refreshing content.
     private func refreshItems() async {
-        await requestItems(isFirst: true)
+        pagingState = .refresh
+        loadedSectionCount = 0
+        
+        do {
+            let newItems = try await repository.getItems(
+                limit: Constants.requestLimit,
+                offset: loadedSectionCount * Constants.requestLimit
+            )
+            let newSection = getSectionItem(with: newItems)
+            
+            self.sections = [newSection]
+            
+            // Increment loaded pages counter after the page is loaded.
+            loadedSectionCount += 1
+            pagingState = newItems.count < Constants.requestLimit ? .disabled : .items
+        } catch let error {
+            // Сlearing items for correct operation of the state loader when call pull to refresh.
+            sections = []
+            
+            // Display a full screen error in case of the first section loading error.
+            pagingState = .fullscreenError(error)
+        }
     }
     
     // Async method for loading content.
     private func requestItems(isFirst: Bool) async {
-        if isFirst, sections.isEmpty == false {
-            // Refresh content.
-            pagingState = .refresh
-            loadedSectionCount = 0
-        } else if isFirst {
-            // Reset loaded pages counter when loading the first section.
+        if isFirst {
             pagingState = .fullscreenLoading
             loadedSectionCount = 0
         } else {
@@ -134,11 +150,6 @@ struct ListWithSectionsView: View {
             pagingState = newItems.count < Constants.requestLimit ? .disabled : .items
         } catch let error {
             if isFirst {
-                // Сlearing items for correct operation of the state loader when call pull to refresh.
-                if pagingState == .refresh {
-                    sections = []
-                }
-                
                 // Display a full screen error in case of the first section loading error.
                 pagingState = .fullscreenError(error)
             } else {

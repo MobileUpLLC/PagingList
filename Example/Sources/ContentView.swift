@@ -90,16 +90,34 @@ struct ContentView: View {
     
     // Async method for loading and refreshing content.
     private func refreshItems() async {
-        await requestItems(isFirst: true)
+        pagingState = .refresh
+        loadedPagesCount = 0
+        
+        do {
+            let newItems = try await repository.getItems(
+                limit: Constants.requestLimit,
+                offset: loadedPagesCount * Constants.requestLimit
+            )
+            
+            items = newItems
+            
+            // Increment loaded pages counter after the page is loaded.
+            loadedPagesCount += 1
+            
+            // Set the list paging state to display the items or disable pagination if there are no items remaining.
+            pagingState = newItems.count < Constants.requestLimit ? .disabled : .items
+        } catch let error {
+            // Сlearing items for correct operation of the state loader when call pull to refresh.
+            items = []
+            
+            // Display a full screen error in case of the first section loading error.
+            pagingState = .fullscreenError(error)
+        }
     }
     
     // Async method for loading content.
     private func requestItems(isFirst: Bool) async {
-        if isFirst, items.isEmpty == false {
-            // Refresh content.
-            pagingState = .refresh
-            loadedPagesCount = 0
-        } else if isFirst {
+        if isFirst {
             // Reset loaded pages counter when loading the first page.
             pagingState = .fullscreenLoading
             loadedPagesCount = 0
@@ -121,6 +139,7 @@ struct ContentView: View {
                 // Add new items after the every next page is loaded.
                 items += newItems
             }
+            
             // Increment loaded pages counter after the page is loaded.
             loadedPagesCount += 1
             
@@ -128,11 +147,6 @@ struct ContentView: View {
             pagingState = newItems.count < Constants.requestLimit ? .disabled : .items
         } catch let error {
             if isFirst {
-                // Сlearing items for correct operation of the state loader when call pull to refresh.
-                if pagingState == .refresh {
-                    items = []
-                }
-                
                 // Display a full screen error in case of the first page loading error.
                 pagingState = .fullscreenError(error)
             } else {
