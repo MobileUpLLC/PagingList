@@ -37,4 +37,3 @@ extension PagingListState: Equatable {
         }
     }
 }
-
