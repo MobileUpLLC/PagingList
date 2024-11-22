@@ -25,6 +25,7 @@ struct ListWithSectionsView: View {
     
     private let repository = IntsRepository()
     
+    // swiftlint:disable vertical_parameter_alignment_on_call
     var body: some View {
         PagingList(
             state: $pagingState,
