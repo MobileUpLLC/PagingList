@@ -25,15 +25,21 @@ class PostRepository {
         static let delayInNanoseconds: UInt64 = 3_000_000_000
     }
     
-    func getPosts(page: Int, pageSize: Int) async throws -> PostExampleModel {
-        await Task {
-            try? await Task.sleep(nanoseconds: Constants.delayInNanoseconds)
-        }.value
-        
-        if let postExampleModel = getPostExampleData(pageIndex: page, pageSize: pageSize), Bool.random() {
-            return postExampleModel
-        } else {
-            throw PostRepositoryError.undefined
+    func getPosts(
+        page: Int,
+        pageSize: Int,
+        completion: @escaping (Result<PostExampleModel, Error>) -> Void
+    ) {
+        Task {
+            await Task {
+                try? await Task.sleep(nanoseconds: Constants.delayInNanoseconds)
+            }.value
+            
+            if let postExampleModel = getPostExampleData(pageIndex: page, pageSize: pageSize) {
+                completion(.success(postExampleModel))
+            } else {
+                completion(.failure(PostRepositoryError.undefined))
+            }
         }
     }
     

@@ -9,14 +9,14 @@ public protocol PaginatedResponse: Codable {
 
 // Модель используется в билдере запросов, наследующих PaginatedResponse
 public struct PageRequestModel<T> {
-    let page: Int
-    let pageSize: Int
-    let completion: (Result<T, Error>) -> Void
+    public let page: Int
+    public let pageSize: Int
+    public let completion: (Result<T, Error>) -> Void
 }
 
 // При использовании сервиса необходимо чтоб тип items в PaginatedResponse соответствовал
 // типу DataModel
-final class PaginationService<ResponseModel: PaginatedResponse, DataModel: Codable>: ObservableObject {
+public final class PageRequestService<ResponseModel: PaginatedResponse, DataModel: Codable>: ObservableObject {
     @Published public var pagingState: PagingListState = .fullscreenLoading
     @Published public var items: [DataModel] = []
     public private(set) var canLoadMore: Bool = true
