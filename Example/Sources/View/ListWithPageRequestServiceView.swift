@@ -76,26 +76,9 @@ private struct PostView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(post.title)
                 .font(.title)
-            if let imageUrl = post.imageUrl, let image = downloadImage(url: imageUrl) {
-                Image(uiImage: image)
-            }
             Text(post.description)
                 .font(.caption)
         }
-    }
-    
-    private func downloadImage(url: URL) -> UIImage? {
-        var data: Data?
-        
-        Task {
-            let data = try? await URLSession.shared.data(from: url, delegate: nil).0
-        }
-        
-        guard let data, let image = UIImage(data: data) else {
-            return nil
-        }
-        
-        return image
     }
 }
 

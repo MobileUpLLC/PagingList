@@ -11,16 +11,17 @@ import PagingList
 struct PostExampleModel: PaginatedResponse {
     let items: [Post]
     let hasMore: Bool?
+    var totalPages: Int?
+    var currentPage: Int?
     
     enum CodingKeys: String, CodingKey {
         case items = "posts"
-        case hasMore
+        case hasMore, totalPages, currentPage
     }
 }
 
 struct Post: Codable, Identifiable {
-    let id: UUID
+    let id: String
     let title: String
     let description: String
-    let imageUrl: URL?
 }

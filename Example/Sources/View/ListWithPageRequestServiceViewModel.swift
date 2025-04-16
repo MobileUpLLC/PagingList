@@ -30,7 +30,7 @@ final class ListWithPageRequestServiceViewModel: ObservableObject {
         } resultHandler: { [weak self] in
             switch $0 {
             case .success(let posts):
-                self?.posts = posts
+                self?.posts += posts
             case .failure(let error):
                 print(error.localizedDescription)
             }

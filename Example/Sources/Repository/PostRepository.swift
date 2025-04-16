@@ -35,20 +35,22 @@ class PostRepository {
                 try? await Task.sleep(nanoseconds: Constants.delayInNanoseconds)
             }.value
             
-            if let postExampleModel = getPostExampleData(pageIndex: page, pageSize: pageSize) {
-                completion(.success(postExampleModel))
+            if let postExampleModel = getPostExampleData(page: page, pageSize: pageSize) {
+                DispatchQueue.main.async {
+                    completion(.success(postExampleModel))
+                }
             } else {
                 completion(.failure(PostRepositoryError.undefined))
             }
         }
     }
     
-    private func getPostExampleData(pageIndex: Int, pageSize: Int) -> PostExampleModel? {
+    private func getPostExampleData(page: Int, pageSize: Int) -> PostExampleModel? {
         var mockFileName = "MockPostExampleModel"
         let mockExtension = "json"
 
-        mockFileName = "\(mockFileName)&PI=\(pageIndex)&PS=\(pageSize)"
-        
+        mockFileName = "\(mockFileName)&PI=\(page)&PS=\(pageSize)"
+        print(mockFileName)
         guard let mockFileUrl = Bundle.main.url(forResource: mockFileName, withExtension: mockExtension) else {
             return nil
         }

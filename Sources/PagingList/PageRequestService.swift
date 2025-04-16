@@ -5,6 +5,8 @@ public protocol PaginatedResponse: Codable {
     associatedtype T: Codable
     var items: [T] { get }
     var hasMore: Bool? { get } // Опционально для API с метаданными
+    var totalPages: Int? { get }
+    var currentPage: Int? { get }
 }
 
 // Модель используется в билдере запросов, наследующих PaginatedResponse
@@ -71,7 +73,14 @@ public final class PageRequestService<ResponseModel: PaginatedResponse, DataMode
                 
                 self.currentPage += items.count == .zero ? .zero : 1
                 self.pagingState = .items
-                self.canLoadMore = items.count == pageSize
+                
+                if let hasMore = model.hasMore {
+                    canLoadMore = hasMore
+                } else if let totalPages = model.totalPages, let currentPage = model.currentPage {
+                    canLoadMore = currentPage < totalPages
+                } else {
+                    canLoadMore = items.count == pageSize
+                }
                 
                 if isFirst {
                     self.items = items
