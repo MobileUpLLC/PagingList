@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		084770A82DAF92F60043935A /* PostExampleModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 084770A72DAF92E50043935A /* PostExampleModel.swift */; };
+		084770AB2DAFA1C80043935A /* PostRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 084770AA2DAFA1C00043935A /* PostRepository.swift */; };
+		084770C62DAFA4440043935A /* MockPostExampleModel&PI=0&PS=10.json in Sources */ = {isa = PBXBuildFile; fileRef = 084770C52DAFA4400043935A /* MockPostExampleModel&PI=0&PS=10.json */; };
+		084770C92DAFA6710043935A /* MockPostExampleModel&PI=1&PS=10.json in Resources */ = {isa = PBXBuildFile; fileRef = 084770C82DAFA6710043935A /* MockPostExampleModel&PI=1&PS=10.json */; };
+		084770CD2DAFA7060043935A /* MockPostExampleModel&PI=2&PS=10.json in Resources */ = {isa = PBXBuildFile; fileRef = 084770CC2DAFA7060043935A /* MockPostExampleModel&PI=2&PS=10.json */; };
+		084770CF2DAFA76F0043935A /* MockPostExampleModel&PI=3&PS=10.json in Resources */ = {isa = PBXBuildFile; fileRef = 084770CE2DAFA76F0043935A /* MockPostExampleModel&PI=3&PS=10.json */; };
 		733AAF712CECDECA00FAB5AF /* ListWithSectionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 733AAF702CECDECA00FAB5AF /* ListWithSectionsView.swift */; };
 		733AAF732CECEC6500FAB5AF /* ListStateViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 733AAF722CECEC6500FAB5AF /* ListStateViews.swift */; };
 		73FE54682CEF6DEC00B6C83E /* ListWithoutSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73FE54672CEF6DEC00B6C83E /* ListWithoutSectionView.swift */; };
@@ -19,6 +25,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		084770A72DAF92E50043935A /* PostExampleModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostExampleModel.swift; sourceTree = "<group>"; };
+		084770AA2DAFA1C00043935A /* PostRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostRepository.swift; sourceTree = "<group>"; };
+		084770C52DAFA4400043935A /* MockPostExampleModel&PI=0&PS=10.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "MockPostExampleModel&PI=0&PS=10.json"; sourceTree = "<group>"; };
+		084770C82DAFA6710043935A /* MockPostExampleModel&PI=1&PS=10.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "MockPostExampleModel&PI=1&PS=10.json"; sourceTree = "<group>"; };
+		084770CC2DAFA7060043935A /* MockPostExampleModel&PI=2&PS=10.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "MockPostExampleModel&PI=2&PS=10.json"; sourceTree = "<group>"; };
+		084770CE2DAFA76F0043935A /* MockPostExampleModel&PI=3&PS=10.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "MockPostExampleModel&PI=3&PS=10.json"; sourceTree = "<group>"; };
 		733AAF702CECDECA00FAB5AF /* ListWithSectionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListWithSectionsView.swift; sourceTree = "<group>"; };
 		733AAF722CECEC6500FAB5AF /* ListStateViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListStateViews.swift; sourceTree = "<group>"; };
 		73FE54672CEF6DEC00B6C83E /* ListWithoutSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListWithoutSectionView.swift; sourceTree = "<group>"; };
@@ -43,6 +55,45 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		084770A92DAFA1B30043935A /* Repository */ = {
+			isa = PBXGroup;
+			children = (
+				E10FA355297A68830031ED65 /* IntsRepository.swift */,
+				084770AA2DAFA1C00043935A /* PostRepository.swift */,
+			);
+			path = Repository;
+			sourceTree = "<group>";
+		};
+		084770C72DAFA5250043935A /* Mock */ = {
+			isa = PBXGroup;
+			children = (
+				084770C52DAFA4400043935A /* MockPostExampleModel&PI=0&PS=10.json */,
+				084770C82DAFA6710043935A /* MockPostExampleModel&PI=1&PS=10.json */,
+				084770CC2DAFA7060043935A /* MockPostExampleModel&PI=2&PS=10.json */,
+				084770CE2DAFA76F0043935A /* MockPostExampleModel&PI=3&PS=10.json */,
+			);
+			path = Mock;
+			sourceTree = "<group>";
+		};
+		084770D02DAFA7BB0043935A /* View */ = {
+			isa = PBXGroup;
+			children = (
+				73FE54672CEF6DEC00B6C83E /* ListWithoutSectionView.swift */,
+				E1FDB14B29770604003CC2A5 /* ContentView.swift */,
+				733AAF722CECEC6500FAB5AF /* ListStateViews.swift */,
+				733AAF702CECDECA00FAB5AF /* ListWithSectionsView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		084770D12DAFA7D60043935A /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				084770A72DAF92E50043935A /* PostExampleModel.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
 		E10FA35129770CBE0031ED65 /* Packages */ = {
 			isa = PBXGroup;
 			children = (
@@ -72,12 +123,11 @@
 		E1FDB14829770604003CC2A5 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				084770D12DAFA7D60043935A /* Model */,
+				084770D02DAFA7BB0043935A /* View */,
+				084770C72DAFA5250043935A /* Mock */,
+				084770A92DAFA1B30043935A /* Repository */,
 				E1FDB14929770604003CC2A5 /* ExampleApp.swift */,
-				E1FDB14B29770604003CC2A5 /* ContentView.swift */,
-				733AAF722CECEC6500FAB5AF /* ListStateViews.swift */,
-				E10FA355297A68830031ED65 /* IntsRepository.swift */,
-				733AAF702CECDECA00FAB5AF /* ListWithSectionsView.swift */,
-				73FE54672CEF6DEC00B6C83E /* ListWithoutSectionView.swift */,
 				E1FDB14D29770605003CC2A5 /* Assets.xcassets */,
 				E1FDB14F29770605003CC2A5 /* Preview Content */,
 			);
@@ -163,6 +213,9 @@
 			files = (
 				E1FDB15129770605003CC2A5 /* Preview Assets.xcassets in Resources */,
 				E1FDB14E29770605003CC2A5 /* Assets.xcassets in Resources */,
+				084770C92DAFA6710043935A /* MockPostExampleModel&PI=1&PS=10.json in Resources */,
+				084770CD2DAFA7060043935A /* MockPostExampleModel&PI=2&PS=10.json in Resources */,
+				084770CF2DAFA76F0043935A /* MockPostExampleModel&PI=3&PS=10.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -195,10 +248,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				084770A82DAF92F60043935A /* PostExampleModel.swift in Sources */,
 				E10FA356297A68830031ED65 /* IntsRepository.swift in Sources */,
 				733AAF712CECDECA00FAB5AF /* ListWithSectionsView.swift in Sources */,
 				E1FDB14C29770604003CC2A5 /* ContentView.swift in Sources */,
+				084770C62DAFA4440043935A /* MockPostExampleModel&PI=0&PS=10.json in Sources */,
 				73FE54682CEF6DEC00B6C83E /* ListWithoutSectionView.swift in Sources */,
+				084770AB2DAFA1C80043935A /* PostRepository.swift in Sources */,
 				733AAF732CECEC6500FAB5AF /* ListStateViews.swift in Sources */,
 				E1FDB14A29770604003CC2A5 /* ExampleApp.swift in Sources */,
 			);
