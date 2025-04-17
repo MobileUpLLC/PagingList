@@ -20,11 +20,12 @@ extension IntsRepositoryError: LocalizedError {
     }
 }
 
-class IntsRepository {
+final class IntsRepository: Sendable {
     private enum Constants {
         static let delayInNanoseconds: UInt64 = 3_000_000_000
     }
     
+    @Sendable
     func getItems(limit: Int, offset: Int) async throws -> [Int] {
         await Task {
             try? await Task.sleep(nanoseconds: Constants.delayInNanoseconds)
