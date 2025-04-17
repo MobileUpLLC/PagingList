@@ -9,7 +9,10 @@ actor PageRequestState<DataModel: Codable & Sendable> {
     private(set) var canLoadMore: Bool = true
     private(set) var items: [DataModel] = []
     private(set) var pagingState: PagingListState = .fullscreenLoading
-    
+    private var prefetchedItems: [DataModel] = []
+    private var prefetchedPage: Int? // Номер страницы для префетч-данных
+    private var isPrefetchPending: Bool = false // Флаг для ожидания префетча
+
     private var isRequestInProcess: Bool = false
     private var prefetchTask: Task<Void, Never>?
     
@@ -35,6 +38,9 @@ actor PageRequestState<DataModel: Codable & Sendable> {
     
     func resetPrefetchedPages() {
         prefetchedPages = 0
+        prefetchedItems = []
+        prefetchedPage = nil
+        isPrefetchPending = false
     }
     
     func incrementPage() {
@@ -69,6 +75,30 @@ actor PageRequestState<DataModel: Codable & Sendable> {
         prefetchTask?.cancel()
         prefetchTask = nil
     }
+
+    func hasPrefetchedItems(forPage page: Int) -> Bool {
+        return !prefetchedItems.isEmpty && prefetchedPage == page
+    }
+
+    func getPrefetchedItems() -> [DataModel] {
+        let result = prefetchedItems
+        prefetchedItems = []
+        prefetchedPage = nil
+        return result
+    }
+
+    func setPrefetchedItems(_ items: [DataModel], forPage page: Int) {
+        prefetchedItems = items
+        prefetchedPage = page
+    }
+
+    func setPrefetchPending(_ value: Bool) {
+        isPrefetchPending = value
+    }
+
+    func getIsPrefetchPending() -> Bool {
+        return isPrefetchPending
+    }
 }
 
 public protocol PaginatedResponse: Codable, Sendable {
@@ -95,21 +125,41 @@ public final class PageRequestService<ResponseModel: PaginatedResponse, DataMode
         guard await state.startRequest() else { throw PagingError.requestInProgress }
         defer { Task { await state.endRequest() } }
 
-        let page = isFirst ? state.startPage : await state.currentPage
+        // Разделяем доступ к startPage (синхронный) и currentPage (асинхронный)
+        let page: Int
+        if isFirst {
+            page = state.startPage
+        } else {
+            page = await state.currentPage
+        }
+        
         do {
-            let model = try await fetchPage(page, pageSize)
-            guard let modelItems = model.items as? [DataModel] else {
-                throw PagingError.invalidResponse
+            let modelItems: [DataModel]
+            let hasPrefetchedItems = await state.hasPrefetchedItems(forPage: page)
+            if isFirst == false && hasPrefetchedItems {
+                // Используем префетч-данные, если они есть для текущей страницы
+                modelItems = await state.getPrefetchedItems()
+            } else {
+                // Выполняем запрос, если префетч-данных нет
+                let model = try await fetchPage(page, pageSize)
+                guard let items = model.items as? [DataModel] else {
+                    throw PagingError.invalidResponse
+                }
+                modelItems = items
+                await updateCanLoadMore(items: modelItems, pageSize: pageSize, model: model)
             }
 
-            await state.incrementPage()
             await state.setItems(modelItems, isFirst: isFirst)
             await state.setPagingState(.items)
-            await updateCanLoadMore(items: modelItems, pageSize: pageSize, model: model)
+            await state.incrementPage()
             
+            // Проверяем, нужен ли префетч
             let canPrefetchMore = await state.getCanPrefetchMore()
             if !isFirst && canPrefetchMore {
-                await prefetchNextPages(pageSize: pageSize)
+                await state.setPrefetchPending(true)
+                Task {
+                    await prefetchNextPages(pageSize: pageSize)
+                }
             }
         } catch {
             await state.setPagingState(isFirst ? .fullscreenError(error) : .pagingError(error))
@@ -126,29 +176,33 @@ public final class PageRequestService<ResponseModel: PaginatedResponse, DataMode
         await state.cancelPrefetchTask()
         let task = Task { [weak self] in
             guard let self else { return }
-            guard await state.getCanPrefetchMore() else { return }
+            guard await state.getCanPrefetchMore() else {
+                await state.setPrefetchPending(false)
+                return
+            }
+            guard await state.getIsPrefetchPending() else { return }
+            
             do {
-                let newItems = try await performPrefetch(pageSize: pageSize)
-                await state.setItems(newItems, isFirst: false)
+                let nextPage = await state.currentPage
+                let response = try await performPrefetch(pageSize: pageSize, forPage: nextPage)
+                let newItems = response.items as? [DataModel]
+                await state.setPrefetchedItems(newItems ?? [], forPage: nextPage)
                 await state.incrementPrefetchedPages()
-                await updateCanLoadMore(items: newItems, pageSize: pageSize)
+                await updateCanLoadMore(items: newItems ?? [], pageSize: pageSize, model: response)
+                await state.setPrefetchPending(false)
             } catch {
                 print("Ошибка предварительной загрузки: \(error)")
+                await state.setPrefetchPending(false)
             }
         }
         await state.setPrefetchTask(task)
     }
 
-    private func performPrefetch(pageSize: Int) async throws -> [DataModel] {
+    private func performPrefetch(pageSize: Int, forPage page: Int) async throws -> ResponseModel {
         guard await state.startRequest() else { throw PagingError.requestInProgress }
         defer { Task { await state.endRequest() } }
 
-        let model = try await fetchPage(await state.currentPage, pageSize)
-        guard let modelItems = model.items as? [DataModel] else {
-            throw PagingError.invalidResponse
-        }
-        await state.incrementPage()
-        return modelItems
+        return try await fetchPage(page, pageSize)
     }
 
     private func updateCanLoadMore(items: [DataModel], pageSize: Int, model: ResponseModel? = nil) async {
@@ -166,6 +220,7 @@ public final class PageRequestService<ResponseModel: PaginatedResponse, DataMode
     public func stopPrefetching() {
         Task { await state.cancelPrefetchTask() }
         Task { await state.endRequest() }
+        Task { await state.setPrefetchPending(false) }
     }
     
     public func getCanLoadMore() async -> Bool {
