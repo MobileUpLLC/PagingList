@@ -1,6 +1,6 @@
 import Foundation
 
-public enum PagingListState {
+public enum PagingListState: Sendable {
     // Paging disabled.
     case disabled
     // Cells are visible. No loading next items here.

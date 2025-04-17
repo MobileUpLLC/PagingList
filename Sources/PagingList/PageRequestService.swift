@@ -1,15 +1,17 @@
 import Foundation
 
-actor PageRequestState<DataModel: Codable> {
+actor PageRequestState<DataModel: Codable & Sendable> {
     let startPage: Int
     let maxPrefetchPages: Int
     var prefetchedPages: Int = 0
     
     private(set) var currentPage: Int
     private(set) var canLoadMore: Bool = true
-
+    private(set) var items: [DataModel] = []
+    private(set) var pagingState: PagingListState = .fullscreenLoading
     
     private var isRequestInProcess: Bool = false
+    private var prefetchTask: Task<Void, Never>?
     
     init(startPage: Int, maxPrefetchPages: Int) {
         self.startPage = startPage
@@ -43,41 +45,47 @@ actor PageRequestState<DataModel: Codable> {
         canLoadMore = value
     }
     
+    func setItems(_ newItems: [DataModel], isFirst: Bool) {
+        if isFirst {
+            items = newItems
+        } else {
+            items.append(contentsOf: newItems)
+        }
+    }
+    
+    func setPagingState(_ state: PagingListState) {
+        pagingState = state
+    }
+    
     func getCanPrefetchMore() -> Bool {
         return prefetchedPages < maxPrefetchPages
     }
+    
+    func setPrefetchTask(_ task: Task<Void, Never>?) {
+        prefetchTask = task
+    }
+    
+    func cancelPrefetchTask() {
+        prefetchTask?.cancel()
+        prefetchTask = nil
+    }
 }
 
-// Модель используется для ответов от сервера, которые возвращают данные по страницам
-public protocol PaginatedResponse: Codable {
-    associatedtype T: Codable
+public protocol PaginatedResponse: Codable, Sendable {
+    associatedtype T: Codable, Sendable
     var items: [T] { get }
-    var hasMore: Bool? { get } // Опционально для API с метаданными
+    var hasMore: Bool? { get }
     var totalPages: Int? { get }
     var currentPage: Int? { get }
 }
 
-// Модель используется в билдере запросов, наследующих PaginatedResponse
-public struct PageRequestModel<T> {
-    public let page: Int
-    public let pageSize: Int
-    public let completion: (Result<T, Error>) -> Void
-}
-
-// При использовании сервиса необходимо чтоб тип items в PaginatedResponse соответствовал
-// типу DataModel
-public final class PageRequestService<ResponseModel: PaginatedResponse, DataModel: Codable & Sendable>: ObservableObject {
-    @Published public var pagingState: PagingListState = .fullscreenLoading
-    @Published public var items: [DataModel] = []
-    
+public final class PageRequestService<ResponseModel: PaginatedResponse, DataModel: Codable & Sendable>: Sendable {
     private let state: PageRequestState<DataModel>
-    private var prefetchTask: Task<Void, Never>?
-    private let maxPrefetchPages: Int = 2
-    private let fetchPage: (Int, Int) async throws -> ResponseModel
+    private let fetchPage: @Sendable (Int, Int) async throws -> ResponseModel
 
     public init(
         startPage: Int = 1,
-        fetchPage: @escaping (Int, Int) async throws -> ResponseModel
+        fetchPage: @escaping @Sendable (Int, Int) async throws -> ResponseModel
     ) {
         self.state = PageRequestState(startPage: startPage, maxPrefetchPages: 2)
         self.fetchPage = fetchPage
@@ -95,28 +103,16 @@ public final class PageRequestService<ResponseModel: PaginatedResponse, DataMode
             }
 
             await state.incrementPage()
-            
-            await MainActor.run {
-                if isFirst {
-                    self.items = modelItems
-                } else {
-                    self.items.append(contentsOf: modelItems)
-                }
-                self.pagingState = .items
-                self.objectWillChange.send()
-            }
-
+            await state.setItems(modelItems, isFirst: isFirst)
+            await state.setPagingState(.items)
             await updateCanLoadMore(items: modelItems, pageSize: pageSize, model: model)
             
             let canPrefetchMore = await state.getCanPrefetchMore()
-            
             if !isFirst && canPrefetchMore {
                 await prefetchNextPages(pageSize: pageSize)
             }
         } catch {
-            await MainActor.run {
-                self.pagingState = isFirst ? .fullscreenError(error) : .pagingError(error)
-            }
+            await state.setPagingState(isFirst ? .fullscreenError(error) : .pagingError(error))
             throw error
         }
     }
@@ -125,34 +121,22 @@ public final class PageRequestService<ResponseModel: PaginatedResponse, DataMode
         await state.resetPrefetchedPages()
         try await request(pageSize: pageSize, isFirst: true)
     }
-    
-    public func stopPrefetching() {
-        prefetchTask?.cancel()
-        prefetchTask = nil
-        Task { await state.endRequest() }
-    }
-    
-    public func getCanLoadMore() async -> Bool {
-        await state.canLoadMore
-    }
 
     private func prefetchNextPages(pageSize: Int) async {
-        prefetchTask?.cancel()
-        prefetchTask = Task { [weak self] in
+        await state.cancelPrefetchTask()
+        let task = Task { [weak self] in
             guard let self else { return }
-            guard await state.prefetchedPages < maxPrefetchPages else { return }
+            guard await state.getCanPrefetchMore() else { return }
             do {
                 let newItems = try await performPrefetch(pageSize: pageSize)
-                await MainActor.run {
-                    self.items.append(contentsOf: newItems)
-                    self.objectWillChange.send()
-                }
+                await state.setItems(newItems, isFirst: false)
                 await state.incrementPrefetchedPages()
                 await updateCanLoadMore(items: newItems, pageSize: pageSize)
             } catch {
                 print("Ошибка предварительной загрузки: \(error)")
             }
         }
+        await state.setPrefetchTask(task)
     }
 
     private func performPrefetch(pageSize: Int) async throws -> [DataModel] {
@@ -168,13 +152,32 @@ public final class PageRequestService<ResponseModel: PaginatedResponse, DataMode
     }
 
     private func updateCanLoadMore(items: [DataModel], pageSize: Int, model: ResponseModel? = nil) async {
+        let canLoadMore: Bool
         if let hasMore = model?.hasMore {
-            await state.setCanLoadMore(hasMore)
+            canLoadMore = hasMore
         } else if let totalPages = model?.totalPages, let currentPage = model?.currentPage {
-            await state.setCanLoadMore(currentPage < totalPages)
+            canLoadMore = currentPage < totalPages
         } else {
-            await state.setCanLoadMore(items.count == pageSize)
+            canLoadMore = items.count == pageSize
         }
+        await state.setCanLoadMore(canLoadMore)
+    }
+
+    public func stopPrefetching() {
+        Task { await state.cancelPrefetchTask() }
+        Task { await state.endRequest() }
+    }
+    
+    public func getCanLoadMore() async -> Bool {
+        await state.canLoadMore
+    }
+    
+    public func getItems() async -> [DataModel] {
+        await state.items
+    }
+    
+    public func getPagingState() async -> PagingListState {
+        await state.pagingState
     }
 }
 

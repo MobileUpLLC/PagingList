@@ -20,7 +20,7 @@ extension PostRepositoryError: LocalizedError {
     }
 }
 
-class PostRepository {
+final class PostRepository: Sendable {
     private enum Constants {
         static let delayInNanoseconds: UInt64 = 3_000_000_000
     }

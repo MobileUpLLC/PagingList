@@ -16,7 +16,7 @@ struct ListWithPageRequestServiceView: View {
     // swiftlint:disable vertical_parameter_alignment_on_call
     var body: some View {
         PagingList(
-            state: $viewModel.pageRequestService.pagingState,
+            state: $viewModel.state,
             items: viewModel.posts
         ) { post in
             PostView(post: post)
