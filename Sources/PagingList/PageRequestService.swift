@@ -27,8 +27,8 @@ public final class PageRequestService<ResponseModel: PaginatedResponse, DataMode
     private var startPage: Int
     private var currentPage: Int
     private var isRequestInProcess = false
-    private var prefetchTask: Task<Void, Never>? // Для управления префетчингом
-    private let maxPrefetchPages: Int = 2 // Максимум 2 страницы вперед
+    private var prefetchTask: Task<Void, Never>?
+    private let maxPrefetchPages: Int = 2
     
     private var requestBuilder: ((PageRequestModel<ResponseModel>) -> Void)?
     private var resultHandler: ((Result<[DataModel], Error>) -> Void)?
@@ -36,6 +36,19 @@ public final class PageRequestService<ResponseModel: PaginatedResponse, DataMode
     public init(startPage: Int = 1) {
         self.startPage = startPage
         self.currentPage = startPage
+        
+        // Подписываемся на уведомление для остановки префетчинга при закрытии экрана с PagingList
+        NotificationCenter.default.addObserver(
+            forName: .stopPrefetching,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.stopPrefetching()
+        }
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     public func request(
@@ -94,7 +107,6 @@ public final class PageRequestService<ResponseModel: PaginatedResponse, DataMode
                 
                 resultHandler(.success(items))
                 
-                // Запускаем префетчинг, если возможно
                 if canLoadMore && isFirst == false && prefetchedPages < maxPrefetchPages {
                     prefetchNextPages(pageSize: pageSize)
                 }
@@ -150,7 +162,7 @@ public final class PageRequestService<ResponseModel: PaginatedResponse, DataMode
     }
     
     private func prefetchNextPages(pageSize: Int) {
-        prefetchTask?.cancel() // Отменяем предыдущий префетчинг
+        prefetchTask?.cancel()
         
         prefetchTask = Task { [weak self] in
             guard let self else { return }
@@ -194,12 +206,11 @@ public final class PageRequestService<ResponseModel: PaginatedResponse, DataMode
                 }
                 
                 // Синхронное обновление на главном потоке
-                DispatchQueue.main.async {
+                Task { @MainActor in
                     self.items.append(contentsOf: items)
                     self.resultHandler?(.success(items))
                 }
             case .failure:
-                // Игнорируем ошибки префетчинга
                 break
             }
         }
