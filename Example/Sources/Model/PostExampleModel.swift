@@ -20,7 +20,7 @@ struct PostExampleModel: PaginatedResponse {
     }
 }
 
-struct Post: Codable, Identifiable {
+struct Post: Codable, Identifiable, Sendable {
     let id: String
     let title: String
     let description: String

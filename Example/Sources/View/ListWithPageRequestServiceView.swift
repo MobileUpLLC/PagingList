@@ -9,14 +9,6 @@ import SwiftUI
 import PagingList
 
 struct ListWithPageRequestServiceView: View {
-    private enum Constants {
-        static let requestLimit = 10
-    }
-    
-    @State private var loadedPagesCount = 0
-    @State private var items = [Int]()
-    @State private var pagingState: PagingListState = .items
-    
     @ObservedObject private var viewModel = ListWithPageRequestServiceViewModel()
     
     private let repository = PostRepository()
@@ -37,7 +29,7 @@ struct ListWithPageRequestServiceView: View {
                 .listRowSeparator(.hidden)
         } fullscreenErrorView: { error in
             FullscreenErrorStateView(error: error) {
-                pagingState = .fullscreenLoading
+                viewModel.state = .fullscreenLoading
                 viewModel.requestPosts(isFirst: true)
             }
             .listRowSeparator(.hidden)
@@ -45,7 +37,7 @@ struct ListWithPageRequestServiceView: View {
             PagingDisabledStateView()
                 .listRowSeparator(.hidden)
         } pagingLoadingView: {
-            if viewModel.pageRequestService.canLoadMore {
+            if viewModel.canLoadMore {
                 PagingLoadingStateView()
                     .listRowSeparator(.hidden)
             }
@@ -61,7 +53,7 @@ struct ListWithPageRequestServiceView: View {
         }
         .listStyle(.plain)
         .onAppear {
-            if viewModel.pageRequestService.canLoadMore && viewModel.pageRequestService.pagingState == .fullscreenLoading {
+            if viewModel.canLoadMore && viewModel.state == .fullscreenLoading {
                 viewModel.requestPosts(isFirst: true)
             }
         }
