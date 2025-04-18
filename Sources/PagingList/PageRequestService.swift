@@ -1,30 +1,47 @@
 import Foundation
 
-enum PagingError: Error {
+/// Errors that can occur during paginated requests.
+public enum PagingError: Error {
+    /// A request is already in progress.
     case requestInProgress
+    /// The response data is invalid or cannot be cast to the expected type.
     case invalidResponse
 }
 
+/// A protocol defining the structure of a paginated response, including items and optional pagination metadata.
 public protocol PaginatedResponse: Codable, Sendable {
+    /// The type of items contained in the response, conforming to Codable and Sendable.
     associatedtype T: Codable, Sendable
+    
+    /// The list of items for the current page.
     var items: [T] { get }
+    /// Indicates whether more pages are available.
     var hasMore: Bool? { get }
+    /// The total number of pages, if known.
     var totalPages: Int? { get }
+    /// The current page number, if known.
     var currentPage: Int? { get }
 }
 
+/// A service for managing paginated data requests, including prefetching upcoming pages.
 public final class PageRequestService<ResponseModel: PaginatedResponse, DataModel: Codable & Sendable>: Sendable {
     private let state: PageRequestState<ResponseModel, DataModel>
     private let fetchPage: @Sendable (_ page: Int, _ pageSize: Int) async throws -> ResponseModel
 
+    /// Initializes the service with a starting page and a closure for fetching pages.
+    /// - Parameters:
+    ///   - startPage: The initial page number (default is 1).
+    ///   - prefetchTreshold: The maximum number of pages to prefetch ahead (default is 1).
+    ///   - fetchPage: A closure that fetches a page of data asynchronously, returning a `PaginatedResponse`.
     public init(
         startPage: Int = 1,
+        prefetchTreshold: Int = 1,
         fetchPage: @escaping @Sendable (_ page: Int, _ pageSize: Int) async throws -> ResponseModel
     ) {
-        self.state = PageRequestState(startPage: startPage, prefetchTreshold: 2)
+        self.state = PageRequestState(startPage: startPage, prefetchTreshold: prefetchTreshold)
         self.fetchPage = fetchPage
         
-        // Подписываемся на уведомление для остановки префетчинга при закрытии экрана с PagingList
+        // Subscribe to a notification to stop prefetching when the PagingList screen is dismissed.
         NotificationCenter.default.addObserver(
             forName: .stopPrefetching,
             object: nil,
@@ -38,6 +55,10 @@ public final class PageRequestService<ResponseModel: PaginatedResponse, DataMode
         NotificationCenter.default.removeObserver(self)
     }
     
+    /// Requests a page of data, either from prefetched data or via a network request.
+    /// - Parameters:
+    ///   - pageSize: The number of items per page.
+    ///   - isFirst: If `true`, requests the first page and resets existing data.
     public func request(pageSize: Int, isFirst: Bool) async throws {
         guard await state.startRequest() else {
             throw PagingError.requestInProgress
@@ -56,11 +77,11 @@ public final class PageRequestService<ResponseModel: PaginatedResponse, DataMode
                 let prefetchedResponse = await state.getPrefetchedResponse(for: page),
                 let items = prefetchedResponse.items as? [DataModel]
             {
-                // Используем префетч-данные, если они есть для текущей страницы
+                // Use prefetched data if available for the current page.
                 modelItems = items
                 await updateCanLoadMore(items: items, pageSize: pageSize, model: prefetchedResponse)
             } else {
-                // Выполняем запрос, если префетч-данных нет
+                // Perform a request if no prefetched data is available.
                 if isFirst {
                     await state.resetPrefetchedPages()
                 }
@@ -85,7 +106,8 @@ public final class PageRequestService<ResponseModel: PaginatedResponse, DataMode
             throw error
         }
     }
-    
+
+    /// Stops ongoing prefetching operations.
     public func stopPrefetching() {
         Task {
             await state.cancelPrefetchTask()
@@ -94,18 +116,26 @@ public final class PageRequestService<ResponseModel: PaginatedResponse, DataMode
         }
     }
     
+    /// Retrieves whether more pages can be loaded, related to current page on the screen.
+    /// - Returns: `true` if more pages are available, `false` otherwise.
     public func getCanLoadMore() async -> Bool {
         await state.canLoadMore
     }
     
+    /// Retrieves the current list of loaded items, excluding prefetched.
+    /// - Returns: An array of `DataModel` items.
     public func getItems() async -> [DataModel] {
         await state.items
     }
     
+    /// Retrieves the current UI state of the paginated list.
+    /// - Returns: The current `PagingListState`.
     public func getPagingState() async -> PagingListState {
         await state.pagingState
     }
     
+    /// Sets the UI state of the paginated list.
+    /// - Parameter pagingState: The new `PagingListState` to apply.
     public func setPagingState(pagingState: PagingListState) async {
         await state.setPagingState(pagingState)
     }

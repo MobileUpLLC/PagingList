@@ -41,7 +41,7 @@ final class PostRepository: Sendable {
         let mockExtension = "json"
 
         mockFileName = "\(mockFileName)&PI=\(page)&PS=\(pageSize)"
-        print(mockFileName)
+        
         guard let mockFileUrl = Bundle.main.url(forResource: mockFileName, withExtension: mockExtension) else {
             return nil
         }
