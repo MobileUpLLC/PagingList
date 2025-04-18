@@ -79,17 +79,16 @@
 			path = Mock;
 			sourceTree = "<group>";
 		};
-		084770D02DAFA7BB0043935A /* View */ = {
+		084770D02DAFA7BB0043935A /* UI */ = {
 			isa = PBXGroup;
 			children = (
-				084770E52DAFE18B0043935A /* ListWithPageRequestServiceViewModel.swift */,
-				084770E32DAFE0F90043935A /* ListWithPageRequestServiceView.swift */,
+				089B61F82DB2239C00059219 /* ListWithPageRequestService */,
 				73FE54672CEF6DEC00B6C83E /* ListWithoutSectionView.swift */,
 				E1FDB14B29770604003CC2A5 /* ContentView.swift */,
 				733AAF722CECEC6500FAB5AF /* ListStateViews.swift */,
 				733AAF702CECDECA00FAB5AF /* ListWithSectionsView.swift */,
 			);
-			path = View;
+			path = UI;
 			sourceTree = "<group>";
 		};
 		084770D12DAFA7D60043935A /* Model */ = {
@@ -98,6 +97,15 @@
 				084770A72DAF92E50043935A /* PostExampleModel.swift */,
 			);
 			path = Model;
+			sourceTree = "<group>";
+		};
+		089B61F82DB2239C00059219 /* ListWithPageRequestService */ = {
+			isa = PBXGroup;
+			children = (
+				084770E52DAFE18B0043935A /* ListWithPageRequestServiceViewModel.swift */,
+				084770E32DAFE0F90043935A /* ListWithPageRequestServiceView.swift */,
+			);
+			path = ListWithPageRequestService;
 			sourceTree = "<group>";
 		};
 		E10FA35129770CBE0031ED65 /* Packages */ = {
@@ -131,7 +139,7 @@
 			children = (
 				084770C72DAFA5250043935A /* Mock */,
 				084770D12DAFA7D60043935A /* Model */,
-				084770D02DAFA7BB0043935A /* View */,
+				084770D02DAFA7BB0043935A /* UI */,
 				084770A92DAFA1B30043935A /* Repository */,
 				E1FDB14929770604003CC2A5 /* ExampleApp.swift */,
 				E1FDB14D29770605003CC2A5 /* Assets.xcassets */,

@@ -16,7 +16,7 @@ struct ListWithPageRequestServiceView: View {
     // swiftlint:disable vertical_parameter_alignment_on_call
     var body: some View {
         PagingList(
-            state: $viewModel.state,
+            state: $viewModel.pagingState,
             items: viewModel.posts
         ) { post in
             PostView(post: post)
@@ -29,7 +29,7 @@ struct ListWithPageRequestServiceView: View {
                 .listRowSeparator(.hidden)
         } fullscreenErrorView: { error in
             FullscreenErrorStateView(error: error) {
-                viewModel.state = .fullscreenLoading
+                viewModel.pagingState = .fullscreenLoading
                 viewModel.requestPosts(isFirst: true)
             }
             .listRowSeparator(.hidden)
@@ -53,7 +53,7 @@ struct ListWithPageRequestServiceView: View {
         }
         .listStyle(.plain)
         .onAppear {
-            if viewModel.canLoadMore && viewModel.state == .fullscreenLoading {
+            if viewModel.canLoadMore && viewModel.pagingState == .fullscreenLoading {
                 viewModel.requestPosts(isFirst: true)
             }
         }
