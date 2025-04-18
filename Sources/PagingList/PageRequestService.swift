@@ -1,5 +1,10 @@
 import Foundation
 
+enum PagingError: Error {
+    case requestInProgress
+    case invalidResponse
+}
+
 public protocol PaginatedResponse: Codable, Sendable {
     associatedtype T: Codable, Sendable
     var items: [T] { get }
@@ -81,6 +86,30 @@ public final class PageRequestService<ResponseModel: PaginatedResponse, DataMode
         }
     }
     
+    public func stopPrefetching() {
+        Task {
+            await state.cancelPrefetchTask()
+            await state.endRequest()
+            await state.setPrefetchPending(false)
+        }
+    }
+    
+    public func getCanLoadMore() async -> Bool {
+        await state.canLoadMore
+    }
+    
+    public func getItems() async -> [DataModel] {
+        await state.items
+    }
+    
+    public func getPagingState() async -> PagingListState {
+        await state.pagingState
+    }
+    
+    public func setPagingState(pagingState: PagingListState) async {
+        await state.setPagingState(pagingState)
+    }
+    
     private func prefetchIfNeeded(pageSize: Int) async {
         guard await state.isRequestInProcess else {
             return
@@ -132,21 +161,19 @@ public final class PageRequestService<ResponseModel: PaginatedResponse, DataMode
     }
 
     private func updateCanLoadMore(items: [DataModel], pageSize: Int, model: ResponseModel? = nil) async {
-        let canLoadMore: Bool
-        
-        if let hasMore = model?.hasMore {
-            canLoadMore = hasMore
-        } else if let totalPages = model?.totalPages, let currentPage = model?.currentPage {
-            canLoadMore = currentPage < totalPages
-        } else {
-            canLoadMore = items.count == pageSize
-        }
+        let canLoadMore = getCanLoadMore(items: items, pageSize: pageSize, model: model)
         
         await state.setCanLoadMore(canLoadMore)
         await state.setCanLoadMorePrefetch(canLoadMore)
     }
     
     private func updateCanLoadMorePrefetch(items: [DataModel], pageSize: Int, model: ResponseModel? = nil) async {
+        let canLoadMore = getCanLoadMore(items: items, pageSize: pageSize, model: model)
+        
+        await state.setCanLoadMorePrefetch(canLoadMore)
+    }
+    
+    private func getCanLoadMore(items: [DataModel], pageSize: Int, model: ResponseModel? = nil) -> Bool {
         let canLoadMore: Bool
         
         if let hasMore = model?.hasMore {
@@ -157,35 +184,6 @@ public final class PageRequestService<ResponseModel: PaginatedResponse, DataMode
             canLoadMore = items.count == pageSize
         }
         
-        await state.setCanLoadMorePrefetch(canLoadMore)
+        return canLoadMore
     }
-
-    public func stopPrefetching() {
-        Task {
-            await state.cancelPrefetchTask()
-            await state.endRequest()
-            await state.setPrefetchPending(false)
-        }
-    }
-    
-    public func getCanLoadMore() async -> Bool {
-        await state.canLoadMore
-    }
-    
-    public func getItems() async -> [DataModel] {
-        await state.items
-    }
-    
-    public func getPagingState() async -> PagingListState {
-        await state.pagingState
-    }
-    
-    public func setPagingState(pagingState: PagingListState) async {
-        await state.setPagingState(pagingState)
-    }
-}
-
-enum PagingError: Error {
-    case requestInProgress
-    case invalidResponse
 }

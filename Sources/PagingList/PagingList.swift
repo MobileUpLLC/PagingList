@@ -64,7 +64,6 @@ public struct PagingList<
         }
         .refreshable(action: requestOnRefresh)
         .onDisappear {
-            // Останавливаем префетчинг при исчезновении списка
             NotificationCenter.default.post(name: .stopPrefetching, object: nil)
         }
     }
@@ -109,7 +108,6 @@ public struct PagingList<
     }
 }
 
-// Уведомление для остановки префетчинга
 extension Notification.Name {
     static let stopPrefetching = Notification.Name("StopPrefetching")
 }
