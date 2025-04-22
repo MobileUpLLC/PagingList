@@ -1,19 +1,25 @@
 import Foundation
 
 public enum PagingListState: Sendable {
-    // Paging disabled.
+    /// Paging disabled.
     case disabled
-    // Cells are visible. No loading next items here.
+    
+    /// Cells are visible. No loading next items here.
     case items
-    // Fullscreen initial data loading(first page).
+    
+    /// Fullscreen initial data loading(first page).
     case fullscreenLoading
-    // Fullscreen error on loading first page.
+    
+    /// Fullscreen error on loading first page.
     case fullscreenError(Error)
-    // Loading next page(> 1). Next page loading cell is visible here at the bottom fo the list.
+    
+    /// Loading next page(> 1). Next page loading cell is visible here at the bottom fo the list.
     case pagingLoading
-    // Error on next page loading. Next page error cell is visible here at the bottom of the list.
+    
+    /// Error on next page loading. Next page error cell is visible here at the bottom of the list.
     case pagingError(Error)
-    // Updating content with pull to refresh
+    
+    /// Updating content with pull to refresh
     case refresh
 }
 

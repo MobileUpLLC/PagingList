@@ -2,23 +2,29 @@ import Foundation
 
 /// Errors that can occur during paginated requests.
 public enum PagingError: Error {
+    
     /// A request is already in progress.
     case requestInProgress
+    
     /// The response data is invalid or cannot be cast to the expected type.
     case invalidResponse
 }
 
 /// A protocol defining the structure of a paginated response, including items and optional pagination metadata.
 public protocol PaginatedResponse: Codable, Sendable {
+    
     /// The type of items contained in the response, conforming to Codable and Sendable.
     associatedtype T: Codable, Sendable
     
     /// The list of items for the current page.
     var items: [T] { get }
+    
     /// Indicates whether more pages are available.
     var hasMore: Bool? { get }
+    
     /// The total number of pages, if known.
     var totalPages: Int? { get }
+    
     /// The current page number, if known.
     var currentPage: Int? { get }
 }
@@ -64,8 +70,6 @@ public final class PageRequestService<ResponseModel: PaginatedResponse, DataMode
             throw PagingError.requestInProgress
         }
         
-        defer { Task { await state.endRequest() } }
-
         let currentPage = await state.currentPage
         let page = isFirst ? state.startPage : currentPage
         
@@ -100,8 +104,10 @@ public final class PageRequestService<ResponseModel: PaginatedResponse, DataMode
             await state.setPagingState(.items)
             await state.incrementPage()
             
+            await state.endRequest()
             await prefetchIfNeeded(pageSize: pageSize)
         } catch {
+            await state.endRequest()
             await state.setPagingState(isFirst ? .fullscreenError(error) : .pagingError(error))
             throw error
         }
@@ -158,14 +164,18 @@ public final class PageRequestService<ResponseModel: PaginatedResponse, DataMode
         await state.cancelPrefetchTask()
         
         let task = Task { [weak self] in
-            guard let self else { return }
+            guard let self else {
+                return
+            }
             
             guard await state.canPrefetchMore else {
                 await state.setPrefetchPending(false)
                 return
             }
             
-            guard await state.isPrefetchPending else { return }
+            guard await state.isPrefetchPending else {
+                return
+            }
             
             let nextPage: Int
             
@@ -184,9 +194,11 @@ public final class PageRequestService<ResponseModel: PaginatedResponse, DataMode
                 await state.incrementPrefetchedPages()
                 await state.setMaxPrefetchedPage(nextPage)
             }
+            
             await state.setPrefetchPending(false)
             await prefetchIfNeeded(pageSize: pageSize)
         }
+        
         await state.setPrefetchTask(task)
     }
 

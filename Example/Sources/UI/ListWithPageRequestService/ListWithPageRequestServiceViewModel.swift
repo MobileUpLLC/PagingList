@@ -14,15 +14,15 @@ final class ListWithPageRequestServiceViewModel: ObservableObject {
         static let requestLimit = 10
     }
     
-    @Published var posts: [Post] = []
+    @Published var posts: [PostModel] = []
     @Published var pagingState: PagingListState = .fullscreenLoading
     @Published var canLoadMore: Bool = true
     
-    var pageRequestService: PageRequestService<PostExampleModel, Post>
+    var pageRequestService: PageRequestService<PostExampleModel, PostModel>
     
-    private let postRepository: PostRepository
+    private let postRepository: PostsRepository
     
-    init(postRepository: PostRepository = PostRepository()) {
+    init(postRepository: PostsRepository = PostsRepository()) {
         self.postRepository = postRepository
         pageRequestService = PageRequestService(startPage: 1, fetchPage: postRepository.getPosts(page:pageSize:))
     }

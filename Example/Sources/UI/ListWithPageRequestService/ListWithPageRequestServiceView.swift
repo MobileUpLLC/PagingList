@@ -9,9 +9,9 @@ import SwiftUI
 import PagingList
 
 struct ListWithPageRequestServiceView: View {
-    @ObservedObject private var viewModel = ListWithPageRequestServiceViewModel()
+    @StateObject private var viewModel = ListWithPageRequestServiceViewModel()
     
-    private let repository = PostRepository()
+    private let repository = PostsRepository()
     
     // swiftlint:disable vertical_parameter_alignment_on_call
     var body: some View {
@@ -53,16 +53,14 @@ struct ListWithPageRequestServiceView: View {
         }
         .listStyle(.plain)
         .onAppear {
-            if viewModel.canLoadMore && viewModel.pagingState == .fullscreenLoading {
-                viewModel.requestPosts(isFirst: true)
-            }
+            viewModel.requestPosts(isFirst: true)
         }
     }
     // swiftlint:enable vertical_parameter_alignment_on_call
 }
 
 private struct PostView: View {
-    let post: Post
+    let post: PostModel
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -74,8 +72,6 @@ private struct PostView: View {
     }
 }
 
-struct ListWithPageRequestServiceView_Previews: PreviewProvider {
-    static var previews: some View {
-        ListWithPageRequestServiceView()
-    }
+#Preview {
+    ListWithPageRequestServiceView()
 }

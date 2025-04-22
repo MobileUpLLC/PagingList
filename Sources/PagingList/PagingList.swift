@@ -107,7 +107,3 @@ public struct PagingList<
         await onRefreshRequest()
     }
 }
-
-extension Notification.Name {
-    static let stopPrefetching = Notification.Name("StopPrefetching")
-}

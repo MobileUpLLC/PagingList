@@ -9,7 +9,7 @@ import Foundation
 import PagingList
 
 struct PostExampleModel: PaginatedResponse {
-    let items: [Post]
+    let items: [PostModel]
     let hasMore: Bool?
     var totalPages: Int?
     var currentPage: Int?
@@ -18,10 +18,4 @@ struct PostExampleModel: PaginatedResponse {
         case items = "posts"
         case hasMore, totalPages, currentPage
     }
-}
-
-struct Post: Codable, Identifiable, Sendable {
-    let id: String
-    let title: String
-    let description: String
 }

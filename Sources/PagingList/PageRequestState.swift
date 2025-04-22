@@ -1,22 +1,30 @@
 /// A thread-safe actor that manages the state of paginated requests, including current page, items, and prefetching logic.
 actor PageRequestState<ResponseModel: PaginatedResponse, DataModel: Codable & Sendable> {
     let startPage: Int
+    
     /// The maximum page number that has been prefetched, if any.
     var maxPrefetchedPage: Int?
+    
     /// Indicates whether more pages can be prefetched based on the prefetch threshold.
     var canPrefetchMore: Bool { return prefetchedPages < prefetchTreshold }
     
     private(set) var currentPage: Int
+    
     /// Indicates whether more pages can be loaded, related to current page on the screen for requests to continue.
     private(set) var canLoadMore: Bool = true
+    
     /// Indicates whether more pages can be loaded, related to already prefetched pages.
     private(set) var canLoadMorePrefetch: Bool = true
+    
     /// The list of items loaded so far.
     private(set) var items: [DataModel] = []
+    
     /// The current UI state of the paginated list (e.g., loading, error, items).
     private(set) var pagingState: PagingListState = .fullscreenLoading
+    
     /// Indicates whether a page request is currently in progress.
     private(set) var isRequestInProcess: Bool = false
+    
     /// Indicates whether a prefetch operation is pending.
     private(set) var isPrefetchPending: Bool = false
     

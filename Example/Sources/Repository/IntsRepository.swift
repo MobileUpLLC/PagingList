@@ -7,25 +7,11 @@
 
 import Foundation
 
-enum IntsRepositoryError: Swift.Error {
-    case undefined
-}
-
-extension IntsRepositoryError: LocalizedError {
-    var errorDescription: String? {
-        switch self {
-        case .undefined:
-            return "Ooops:("
-        }
-    }
-}
-
 final class IntsRepository: Sendable {
     private enum Constants {
         static let delayInNanoseconds: UInt64 = 3_000_000_000
     }
     
-    @Sendable
     func getItems(limit: Int, offset: Int) async throws -> [Int] {
         await Task {
             try? await Task.sleep(nanoseconds: Constants.delayInNanoseconds)
