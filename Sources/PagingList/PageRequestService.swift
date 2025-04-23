@@ -73,40 +73,49 @@ public final class PageRequestService<ResponseModel: PaginatedResponse, DataMode
         let currentPage = await state.currentPage
         let page = isFirst ? state.startPage : currentPage
         
-        do {
-            let modelItems: [DataModel]
-            
-            if
-                isFirst == false,
-                let prefetchedResponse = await state.getPrefetchedResponse(for: page),
-                let items = prefetchedResponse.items as? [DataModel]
-            {
-                // Use prefetched data if available for the current page.
-                modelItems = items
-                await updateCanLoadMore(items: items, pageSize: pageSize, model: prefetchedResponse)
-            } else {
-                // Perform a request if no prefetched data is available.
-                let model = try await fetchPage(page, pageSize)
+        let task = Task {
+            do {
+                let modelItems: [DataModel]
                 
-                guard let items = model.items as? [DataModel] else {
-                    throw PagingError.invalidResponse
+                if
+                    isFirst == false,
+                    let prefetchedResponse = await state.getPrefetchedResponse(for: page),
+                    let items = prefetchedResponse.items as? [DataModel]
+                {
+                    // Use prefetched data if available for the current page.
+                    modelItems = items
+                    await updateCanLoadMore(items: items, pageSize: pageSize, model: prefetchedResponse)
+                } else {
+                    // Perform a request if no prefetched data is available.
+                    let model = try await fetchPage(page, pageSize)
+                    
+                    guard let items = model.items as? [DataModel] else {
+                        throw PagingError.invalidResponse
+                    }
+                    
+                    modelItems = items
+                    await updateCanLoadMore(items: modelItems, pageSize: pageSize, model: model)
                 }
                 
-                modelItems = items
-                await updateCanLoadMore(items: modelItems, pageSize: pageSize, model: model)
+                guard Task.isCancelled == false else {
+                    return
+                }
+                
+                await state.setItems(modelItems)
+                await state.setPagingState(.items)
+                await state.incrementPage()
+                
+                await state.endRequest()
+                await prefetchIfNeeded(pageSize: pageSize)
+            } catch {
+                await state.endRequest()
+                await state.setPagingState(isFirst ? .fullscreenError(error) : .pagingError(error))
+                throw error
             }
-
-            await state.setItems(modelItems, isFirst: isFirst)
-            await state.setPagingState(.items)
-            await state.incrementPage()
-            
-            await state.endRequest()
-            await prefetchIfNeeded(pageSize: pageSize)
-        } catch {
-            await state.endRequest()
-            await state.setPagingState(isFirst ? .fullscreenError(error) : .pagingError(error))
-            throw error
         }
+        
+        await state.setRequestTask(task)
+        try await task.value
     }
 
     /// Stops ongoing prefetching operations.
@@ -114,7 +123,6 @@ public final class PageRequestService<ResponseModel: PaginatedResponse, DataMode
         Task {
             await state.cancelPrefetchTask()
             await state.endRequest()
-            await state.setPrefetchPending(false)
         }
     }
     

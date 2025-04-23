@@ -28,6 +28,7 @@ actor PageRequestState<ResponseModel: PaginatedResponse, DataModel: Codable & Se
     /// Indicates whether a prefetch operation is pending.
     private(set) var isPrefetchPending: Bool = false
     
+    private var requestTask: Task<Void, Error>?
     private var prefetchedPages: Int = 0
     private var prefetchedResponse: [Int: ResponseModel] = [:]
     private var prefetchTask: Task<Void, Never>?
@@ -46,14 +47,17 @@ actor PageRequestState<ResponseModel: PaginatedResponse, DataModel: Codable & Se
     /// Starts a new page request, preventing concurrent requests.
     /// - Returns: `true` if the request was started, `false` if a request is already in progress.
     func startRequest(isFirst: Bool) -> Bool {
-        guard isRequestInProcess == false else {
-            return false
-        }
-        
         if isFirst {
+            items.removeAll()
+            cancelRequestTask()
+            endRequest()
             currentPage = startPage
             cancelPrefetchTask()
             resetPrefetchedPages()
+        }
+        
+        guard isRequestInProcess == false else {
+            return false
         }
         
         isRequestInProcess = true
@@ -99,11 +103,7 @@ actor PageRequestState<ResponseModel: PaginatedResponse, DataModel: Codable & Se
     /// - Parameters:
     ///   - newItems: The new items to add.
     ///   - isFirst: If `true`, clears existing items before adding new ones.
-    func setItems(_ newItems: [DataModel], isFirst: Bool) {
-        if isFirst {
-            items.removeAll()
-        }
-        
+    func setItems(_ newItems: [DataModel]) {
         items.append(contentsOf: newItems)
     }
     
@@ -117,6 +117,12 @@ actor PageRequestState<ResponseModel: PaginatedResponse, DataModel: Codable & Se
     /// - Parameter value: The page number to set as the maximum prefetched.
     func setMaxPrefetchedPage(_ value: Int) {
         maxPrefetchedPage = value
+    }
+    
+    /// Sets the task responsible for requesting pages.
+    /// - Parameter task: The `Task` to set, or `nil` to clear.
+    func setRequestTask(_ task: Task<Void, Error>?) {
+        requestTask = task
     }
     
     /// Sets the task responsible for prefetching pages.
@@ -155,5 +161,10 @@ actor PageRequestState<ResponseModel: PaginatedResponse, DataModel: Codable & Se
     /// - Parameter value: `true` if prefetching is pending, `false` otherwise.
     func setPrefetchPending(_ value: Bool) {
         isPrefetchPending = value
+    }
+    
+    private func cancelRequestTask() {
+        requestTask?.cancel()
+        requestTask = nil
     }
 }
