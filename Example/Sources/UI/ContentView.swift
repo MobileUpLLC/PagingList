@@ -11,6 +11,7 @@ import PagingList
 enum PagingListType: Equatable, Hashable, Identifiable {
     case listWithSection
     case listWithoutSection
+    case listWithPageRequestService
     
     var id: Self { self }
 }
@@ -24,7 +25,7 @@ struct ContentView: View {
                 Button {
                     navigationPath.append(.listWithSection)
                 } label: {
-                    Text("Tap to go list with section")
+                    Text("Tap to go to list with section")
                         .padding(20)
                 }
                 .background(.gray)
@@ -33,7 +34,16 @@ struct ContentView: View {
                 Button {
                     navigationPath.append(.listWithoutSection)
                 } label: {
-                    Text("Tap to go list without section")
+                    Text("Tap to go to list without section")
+                        .padding(20)
+                }
+                .background(.gray)
+                .cornerRadius(15)
+                
+                Button {
+                    navigationPath.append(.listWithPageRequestService)
+                } label: {
+                    Text("Tap to go to list with PageRequestService")
                         .padding(20)
                 }
                 .background(.gray)
@@ -45,6 +55,8 @@ struct ContentView: View {
                     ListWithSectionsView()
                 case .listWithoutSection:
                     ListWithoutSectionView()
+                case .listWithPageRequestService:
+                    ListWithPageRequestServiceView()
                 }
             }
         }

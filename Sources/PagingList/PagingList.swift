@@ -63,6 +63,9 @@ public struct PagingList<
             }
         }
         .refreshable(action: requestOnRefresh)
+        .onDisappear {
+            NotificationCenter.default.post(name: .stopPrefetching, object: nil)
+        }
     }
     
     public init(
@@ -92,11 +95,7 @@ public struct PagingList<
     }
     
     private func requestNextPage() {
-        if state == .pagingLoading {
-            return
-        }
-        
-        if state == .disabled {
+        if state == .pagingLoading || state == .disabled {
             return
         }
         

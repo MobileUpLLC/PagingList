@@ -4,13 +4,9 @@ disabled_rules:
   - type_body_length
   - notification_center_detachment
   - generic_type_name
-
+  
 opt_in_rules:
-  - anyobject_protocol
   - array_init
-  - block_based_kvo
-  - class_delegate_protocol
-  - closing_brace
   - closure_body_length
   - closure_end_indentation
   - closure_spacing
@@ -20,17 +16,14 @@ opt_in_rules:
   - contains_over_filter_is_empty
   - contains_over_first_not_nil
   - contains_over_range_nil_comparison
-  - compiler_protocol_init
-  - custom_rules
+  - convenience_type
   - discouraged_optional_boolean
   - discouraged_object_literal
-  - duplicate_imports
   - empty_collection_literal
   - empty_count
   - empty_string
   - empty_xctest_method
   - explicit_init
-  - explicit_self
   - fallthrough
   - fatal_error_message
   - first_where
@@ -41,7 +34,6 @@ opt_in_rules:
   - joined_default_parameter
   - last_where
   - legacy_multiple
-  - legacy_random
   - literal_expression_end_indentation
   - lower_acl_than_parent
   - multiline_arguments
@@ -49,6 +41,7 @@ opt_in_rules:
   - multiline_literal_brackets
   - multiline_parameters
   - nimble_operator
+  - non_overridable_class_declaration
   - nslocalizedstring_key
   - number_separator
   - object_literal
@@ -60,6 +53,7 @@ opt_in_rules:
   - private_outlet
   - prefer_zero_over_explicit_init
   - prohibited_super_call
+  - prohibited_interface_builder
   - quick_discouraged_call
   - quick_discouraged_focused_test
   - quick_discouraged_pending_test
@@ -73,8 +67,6 @@ opt_in_rules:
   - strong_iboutlet
   - toggle_bool
   - unneeded_parentheses_in_closure_argument
-  - unused_declaration
-  - unused_import
   - vertical_parameter_alignment_on_call
   - vertical_whitespace_closing_braces
   - xct_specific_matcher
@@ -88,6 +80,15 @@ excluded:
   - Source/UI/Extensions/UIColor+extension.swift
   - Source/UI/Extensions/UIFont+extension.swift
   - Source/Resources/R.generated.swift
+
+analyzer_rules:
+  - explicit_self
+  - unused_declaration
+  - unused_import
+  
+opening_brace:
+  severity: warning
+  ignore_multiline_statement_conditions: true
 
 force_cast: warning
 force_unwrapping: warning
@@ -104,8 +105,8 @@ file_length:
   error: 500
 
 closure_body_length:
-  warning: 30
-  error: 30
+  warning: 40
+  error: 40
 
 type_name:
   min_length: 1
@@ -131,7 +132,74 @@ nesting:
   type_level:
     warning: 4
     error: 8
-
-warning_threshold: 50
+    
+custom_rules:
+  # Избегаем многострочных комментариев /* ... */
+  no_multiline_comments:
+    name: "No Multiline Comments"
+    regex: "/\\*[^*]*\\*+([^/*][^*]*\\*+)*/"
+    match_kinds: comment
+    message: "Use // instead of /* ... */ for comments."
+    severity: warning
+    
+  # Избегаем !, используем == false
+  no_negation_in_conditions:
+    name: "No Negation in Conditions"
+    regex: "(if|guard|while)\\s+([^\\{]*\\s+)?![a-zA-Z0-9_]+(\\.[a-zA-Z0-9_]+)*\\s*([^\\{]*)\\s*(guard\\s+.*\\s+else\\s*)?\\{"
+    message: "Use '== false' instead of '!' in conditions (e.g., 'if name.isEmpty == false')."
+    severity: warning
+    
+  # Избегаем _Protocol_ в названиях протоколов
+  no_protocol_suffix:
+    name: "No 'protocol' in Protocol Names"
+    regex: "protocol\\s+[a-zA-Z0-9_]*?(?i)protocol(?-i)[a-zA-Z0-9_]*"
+    message: "Avoid using 'protocol' (in any case) in protocol names."
+    severity: warning
+    
+  # Избегаем configure/set в именах методов, используем setup
+  no_configure_or_set_in_methods:
+    name: "No 'configure' or 'set' in Method Names"
+    regex: "(func|private\\s+func)\\s+\\b(configure|set)\\b[a-zA-Z0-9_]*\\("
+    excluded:
+      - ".*(?i)(service|provider).*"  # Исключает файлы с Service или Provider в имени типа
+    message: "Use 'setup' instead of 'configure' or 'set' in method names."
+    severity: warning
+    
+  # Используем [] вместо [Type]()
+  no_type_init_for_arrays:
+    name: "No Type Init for Arrays"
+    regex: "(let|var)\\s+[a-zA-Z0-9_]+\\s*=\\s*\\[+[a-zA-Z0-9_]+(?:\\.[a-zA-Z0-9_]+)*\\]+\\(\\)"
+    message: "Use '[]' instead of '[Type]()' for array initialization."
+    severity: warning
+    
+  # Избегание unowned
+  no_unowned_in_closures:
+    name: "No Unowned in Closures"
+    regex: "\\[unowned\\s+self\\]"
+    message: "Use '[weak self]' instead of 'unowned' in closures."
+    severity: error
+    
+  # Свойства с get, set выделяем в приватные методы, если логика требует более одной строки
+  property_get_set_single_line:
+    name: "Property Get/Set Single Line"
+    regex: "^\\s*(var|let)\\s+[a-zA-Z0-9_]+\\s*:\\s*[a-zA-Z0-9_]+\\s*\\{\\s*(get|set)\\s*\\{[^}]*\\n[^}]*\\}"
+    message: "Properties with get/set should be single-line. Extract multi-line logic to a private method."
+    severity: warning
+    
+  # Свойства с willSet, didSet выделяем в приватные методы, если логика требует более одной строки
+  property_willset_didset_single_line:
+    name: "Property WillSet/DidSet Single Line"
+    regex: "(willSet|didSet)\\s*\\{[^}]*\\n[^}]*\\}"
+    message: "WillSet and DidSet should be single-line. Extract multi-line logic to a private method."
+    severity: warning
+    
+  # Избегаем эмодзи в коде
+  no_emoji:
+    name: "No Emoji"
+    regex: "[\\x{1F300}-\\x{1F5FF}\\x{1F600}-\\x{1F64F}\\x{1F680}-\\x{1F6FF}\\x{1F900}-\\x{1F9FF}]"
+    message: "Do not use emoji in code."
+    severity: warning
+    
+warning_threshold: 1
 
 reporter: "xcode"

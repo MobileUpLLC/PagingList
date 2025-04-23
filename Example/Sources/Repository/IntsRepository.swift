@@ -7,20 +7,7 @@
 
 import Foundation
 
-enum IntsRepositoryError: Swift.Error {
-    case undefined
-}
-
-extension IntsRepositoryError: LocalizedError {
-    var errorDescription: String? {
-        switch self {
-        case .undefined:
-            return "Ooops:("
-        }
-    }
-}
-
-class IntsRepository {
+final class IntsRepository: Sendable {
     private enum Constants {
         static let delayInNanoseconds: UInt64 = 3_000_000_000
     }
@@ -39,6 +26,6 @@ class IntsRepository {
     }
 }
 
-extension Int: Identifiable {
+extension Int: @retroactive Identifiable {
     public var id: Int { self }
 }

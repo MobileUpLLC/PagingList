@@ -7,6 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		084770A82DAF92F60043935A /* PostExampleModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 084770A72DAF92E50043935A /* PostExampleModel.swift */; };
+		084770AB2DAFA1C80043935A /* PostsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 084770AA2DAFA1C00043935A /* PostsRepository.swift */; };
+		084770DC2DAFD9C50043935A /* MockPostExampleModel&PI=1&PS=10.json in Resources */ = {isa = PBXBuildFile; fileRef = 084770C82DAFA6710043935A /* MockPostExampleModel&PI=1&PS=10.json */; };
+		084770DD2DAFD9C50043935A /* MockPostExampleModel&PI=2&PS=10.json in Resources */ = {isa = PBXBuildFile; fileRef = 084770CC2DAFA7060043935A /* MockPostExampleModel&PI=2&PS=10.json */; };
+		084770DE2DAFD9C50043935A /* MockPostExampleModel&PI=3&PS=10.json in Resources */ = {isa = PBXBuildFile; fileRef = 084770CE2DAFA76F0043935A /* MockPostExampleModel&PI=3&PS=10.json */; };
+		084770E22DAFDB7A0043935A /* MockPostExampleModel&PI=4&PS=10.json in Resources */ = {isa = PBXBuildFile; fileRef = 084770E12DAFDB7A0043935A /* MockPostExampleModel&PI=4&PS=10.json */; };
+		084770E42DAFE1090043935A /* ListWithPageRequestServiceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 084770E32DAFE0F90043935A /* ListWithPageRequestServiceView.swift */; };
+		084770E62DAFE1A10043935A /* ListWithPageRequestServiceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 084770E52DAFE18B0043935A /* ListWithPageRequestServiceViewModel.swift */; };
+		08D497D82DB7E4DB008C31C3 /* PostModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08D497D72DB7E4D7008C31C3 /* PostModel.swift */; };
+		08D497DA2DB7EA87008C31C3 /* PostsRepositoryError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08D497D92DB7EA78008C31C3 /* PostsRepositoryError.swift */; };
+		08D497DD2DB7EAD4008C31C3 /* IntsRepositoryError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08D497DC2DB7EAD2008C31C3 /* IntsRepositoryError.swift */; };
 		733AAF712CECDECA00FAB5AF /* ListWithSectionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 733AAF702CECDECA00FAB5AF /* ListWithSectionsView.swift */; };
 		733AAF732CECEC6500FAB5AF /* ListStateViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 733AAF722CECEC6500FAB5AF /* ListStateViews.swift */; };
 		73FE54682CEF6DEC00B6C83E /* ListWithoutSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73FE54672CEF6DEC00B6C83E /* ListWithoutSectionView.swift */; };
@@ -19,6 +30,17 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		084770A72DAF92E50043935A /* PostExampleModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostExampleModel.swift; sourceTree = "<group>"; };
+		084770AA2DAFA1C00043935A /* PostsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostsRepository.swift; sourceTree = "<group>"; };
+		084770C82DAFA6710043935A /* MockPostExampleModel&PI=1&PS=10.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "MockPostExampleModel&PI=1&PS=10.json"; sourceTree = "<group>"; };
+		084770CC2DAFA7060043935A /* MockPostExampleModel&PI=2&PS=10.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "MockPostExampleModel&PI=2&PS=10.json"; sourceTree = "<group>"; };
+		084770CE2DAFA76F0043935A /* MockPostExampleModel&PI=3&PS=10.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "MockPostExampleModel&PI=3&PS=10.json"; sourceTree = "<group>"; };
+		084770E12DAFDB7A0043935A /* MockPostExampleModel&PI=4&PS=10.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "MockPostExampleModel&PI=4&PS=10.json"; sourceTree = "<group>"; };
+		084770E32DAFE0F90043935A /* ListWithPageRequestServiceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListWithPageRequestServiceView.swift; sourceTree = "<group>"; };
+		084770E52DAFE18B0043935A /* ListWithPageRequestServiceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListWithPageRequestServiceViewModel.swift; sourceTree = "<group>"; };
+		08D497D72DB7E4D7008C31C3 /* PostModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostModel.swift; sourceTree = "<group>"; };
+		08D497D92DB7EA78008C31C3 /* PostsRepositoryError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostsRepositoryError.swift; sourceTree = "<group>"; };
+		08D497DC2DB7EAD2008C31C3 /* IntsRepositoryError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntsRepositoryError.swift; sourceTree = "<group>"; };
 		733AAF702CECDECA00FAB5AF /* ListWithSectionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListWithSectionsView.swift; sourceTree = "<group>"; };
 		733AAF722CECEC6500FAB5AF /* ListStateViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListStateViews.swift; sourceTree = "<group>"; };
 		73FE54672CEF6DEC00B6C83E /* ListWithoutSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListWithoutSectionView.swift; sourceTree = "<group>"; };
@@ -43,6 +65,65 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		084770A92DAFA1B30043935A /* Repository */ = {
+			isa = PBXGroup;
+			children = (
+				E10FA355297A68830031ED65 /* IntsRepository.swift */,
+				084770AA2DAFA1C00043935A /* PostsRepository.swift */,
+			);
+			path = Repository;
+			sourceTree = "<group>";
+		};
+		084770C72DAFA5250043935A /* Mock */ = {
+			isa = PBXGroup;
+			children = (
+				084770C82DAFA6710043935A /* MockPostExampleModel&PI=1&PS=10.json */,
+				084770CC2DAFA7060043935A /* MockPostExampleModel&PI=2&PS=10.json */,
+				084770CE2DAFA76F0043935A /* MockPostExampleModel&PI=3&PS=10.json */,
+				084770E12DAFDB7A0043935A /* MockPostExampleModel&PI=4&PS=10.json */,
+			);
+			path = Mock;
+			sourceTree = "<group>";
+		};
+		084770D02DAFA7BB0043935A /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				089B61F82DB2239C00059219 /* ListWithPageRequestService */,
+				73FE54672CEF6DEC00B6C83E /* ListWithoutSectionView.swift */,
+				E1FDB14B29770604003CC2A5 /* ContentView.swift */,
+				733AAF722CECEC6500FAB5AF /* ListStateViews.swift */,
+				733AAF702CECDECA00FAB5AF /* ListWithSectionsView.swift */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		084770D12DAFA7D60043935A /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				08D497D72DB7E4D7008C31C3 /* PostModel.swift */,
+				084770A72DAF92E50043935A /* PostExampleModel.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		089B61F82DB2239C00059219 /* ListWithPageRequestService */ = {
+			isa = PBXGroup;
+			children = (
+				084770E52DAFE18B0043935A /* ListWithPageRequestServiceViewModel.swift */,
+				084770E32DAFE0F90043935A /* ListWithPageRequestServiceView.swift */,
+			);
+			path = ListWithPageRequestService;
+			sourceTree = "<group>";
+		};
+		08D497DB2DB7EACD008C31C3 /* Error */ = {
+			isa = PBXGroup;
+			children = (
+				08D497DC2DB7EAD2008C31C3 /* IntsRepositoryError.swift */,
+				08D497D92DB7EA78008C31C3 /* PostsRepositoryError.swift */,
+			);
+			path = Error;
+			sourceTree = "<group>";
+		};
 		E10FA35129770CBE0031ED65 /* Packages */ = {
 			isa = PBXGroup;
 			children = (
@@ -72,12 +153,12 @@
 		E1FDB14829770604003CC2A5 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				08D497DB2DB7EACD008C31C3 /* Error */,
+				084770C72DAFA5250043935A /* Mock */,
+				084770D12DAFA7D60043935A /* Model */,
+				084770D02DAFA7BB0043935A /* UI */,
+				084770A92DAFA1B30043935A /* Repository */,
 				E1FDB14929770604003CC2A5 /* ExampleApp.swift */,
-				E1FDB14B29770604003CC2A5 /* ContentView.swift */,
-				733AAF722CECEC6500FAB5AF /* ListStateViews.swift */,
-				E10FA355297A68830031ED65 /* IntsRepository.swift */,
-				733AAF702CECDECA00FAB5AF /* ListWithSectionsView.swift */,
-				73FE54672CEF6DEC00B6C83E /* ListWithoutSectionView.swift */,
 				E1FDB14D29770605003CC2A5 /* Assets.xcassets */,
 				E1FDB14F29770605003CC2A5 /* Preview Content */,
 			);
@@ -161,6 +242,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				084770DC2DAFD9C50043935A /* MockPostExampleModel&PI=1&PS=10.json in Resources */,
+				084770DD2DAFD9C50043935A /* MockPostExampleModel&PI=2&PS=10.json in Resources */,
+				084770E22DAFDB7A0043935A /* MockPostExampleModel&PI=4&PS=10.json in Resources */,
+				084770DE2DAFD9C50043935A /* MockPostExampleModel&PI=3&PS=10.json in Resources */,
 				E1FDB15129770605003CC2A5 /* Preview Assets.xcassets in Resources */,
 				E1FDB14E29770605003CC2A5 /* Assets.xcassets in Resources */,
 			);
@@ -186,7 +271,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export PATH=\"$PATH:/opt/homebrew/bin\"\n\nif which swiftlint >/dev/null; then\n  swiftlint --path .. --config ../swiftlint.yml\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+			shellScript = "export PATH=\"$HOME/.mint/bin:/opt/homebrew/bin:$PATH\"\nexpected_swiflint_version=\"0.58.2\"\n\nif (mint list | grep \"$expected_swiflint_version\"); then\n    mint install realm/SwiftLint@\"$expected_swiflint_version\"\n    swiftlint lint --config ../swiftlint.yml ..\nelse\n    echo \"SwiftLint $expected_swiflint_version is not installed\"\n    echo \"run the command in the terminal: mint install realm/SwiftLint@$expected_swiflint_version\"\n    exit 1\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -195,12 +280,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				084770A82DAF92F60043935A /* PostExampleModel.swift in Sources */,
 				E10FA356297A68830031ED65 /* IntsRepository.swift in Sources */,
 				733AAF712CECDECA00FAB5AF /* ListWithSectionsView.swift in Sources */,
+				08D497DD2DB7EAD4008C31C3 /* IntsRepositoryError.swift in Sources */,
 				E1FDB14C29770604003CC2A5 /* ContentView.swift in Sources */,
 				73FE54682CEF6DEC00B6C83E /* ListWithoutSectionView.swift in Sources */,
+				084770AB2DAFA1C80043935A /* PostsRepository.swift in Sources */,
+				084770E42DAFE1090043935A /* ListWithPageRequestServiceView.swift in Sources */,
 				733AAF732CECEC6500FAB5AF /* ListStateViews.swift in Sources */,
+				08D497DA2DB7EA87008C31C3 /* PostsRepositoryError.swift in Sources */,
 				E1FDB14A29770604003CC2A5 /* ExampleApp.swift in Sources */,
+				084770E62DAFE1A10043935A /* ListWithPageRequestServiceViewModel.swift in Sources */,
+				08D497D82DB7E4DB008C31C3 /* PostModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
