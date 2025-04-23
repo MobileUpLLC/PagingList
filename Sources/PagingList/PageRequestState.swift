@@ -45,9 +45,15 @@ actor PageRequestState<ResponseModel: PaginatedResponse, DataModel: Codable & Se
     
     /// Starts a new page request, preventing concurrent requests.
     /// - Returns: `true` if the request was started, `false` if a request is already in progress.
-    func startRequest() -> Bool {
+    func startRequest(isFirst: Bool) -> Bool {
         guard isRequestInProcess == false else {
             return false
+        }
+        
+        if isFirst {
+            currentPage = startPage
+            cancelPrefetchTask()
+            resetPrefetchedPages()
         }
         
         isRequestInProcess = true

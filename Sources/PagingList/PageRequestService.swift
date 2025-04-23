@@ -66,7 +66,7 @@ public final class PageRequestService<ResponseModel: PaginatedResponse, DataMode
     ///   - pageSize: The number of items per page.
     ///   - isFirst: If `true`, requests the first page and resets existing data.
     public func request(pageSize: Int, isFirst: Bool) async throws {
-        guard await state.startRequest() else {
+        guard await state.startRequest(isFirst: isFirst) else {
             throw PagingError.requestInProgress
         }
         
@@ -86,10 +86,6 @@ public final class PageRequestService<ResponseModel: PaginatedResponse, DataMode
                 await updateCanLoadMore(items: items, pageSize: pageSize, model: prefetchedResponse)
             } else {
                 // Perform a request if no prefetched data is available.
-                if isFirst {
-                    await state.resetPrefetchedPages()
-                }
-                
                 let model = try await fetchPage(page, pageSize)
                 
                 guard let items = model.items as? [DataModel] else {
