@@ -13,7 +13,6 @@ struct ListWithPageRequestServiceView: View {
     
     private let repository = PostsRepository()
     
-    // swiftlint:disable vertical_parameter_alignment_on_call
     var body: some View {
         PagingList(
             state: $viewModel.pagingState,
@@ -56,7 +55,6 @@ struct ListWithPageRequestServiceView: View {
             viewModel.requestPosts(isFirst: true)
         }
     }
-    // swiftlint:enable vertical_parameter_alignment_on_call
 }
 
 private struct PostView: View {

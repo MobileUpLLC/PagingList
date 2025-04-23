@@ -10,6 +10,7 @@ import PagingList
 
 struct PostExampleModel: PaginatedResponse {
     let items: [PostModel]
+    // swiftlint:disable:next discouraged_optional_boolean
     let hasMore: Bool?
     var totalPages: Int?
     var currentPage: Int?

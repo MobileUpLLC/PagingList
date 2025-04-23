@@ -25,7 +25,6 @@ struct ListWithSectionsView: View {
     
     private let repository = IntsRepository()
     
-    // swiftlint:disable vertical_parameter_alignment_on_call
     var body: some View {
         PagingList(
             state: $pagingState,
@@ -84,7 +83,6 @@ struct ListWithSectionsView: View {
             requestItems(isFirst: true)
         }
     }
-    // swiftlint:enable vertical_parameter_alignment_on_call
     
     // Sync method for first loading and pagination loading content.
     private func requestItems(isFirst: Bool) {

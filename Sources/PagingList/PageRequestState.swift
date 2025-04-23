@@ -1,4 +1,4 @@
-/// A thread-safe actor that manages the state of paginated requests, including current page, items, and prefetching logic.
+/// A thread-safe actor that manages state of paginated requests, including current page, items, and prefetching logic.
 actor PageRequestState<ResponseModel: PaginatedResponse, DataModel: Codable & Sendable> {
     let startPage: Int
     

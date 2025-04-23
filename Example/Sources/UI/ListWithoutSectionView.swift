@@ -14,12 +14,11 @@ struct ListWithoutSectionView: View {
     }
     
     @State private var loadedPagesCount = 0
-    @State private var items = [Int]()
+    @State private var items: [Int] = []
     @State private var pagingState: PagingListState = .items
         
     private let repository = IntsRepository()
     
-    // swiftlint:disable vertical_parameter_alignment_on_call
     var body: some View {
         PagingList(
             state: $pagingState,
@@ -62,7 +61,6 @@ struct ListWithoutSectionView: View {
             requestItems(isFirst: true)
         }
     }
-    // swiftlint:enable vertical_parameter_alignment_on_call
 
     // Sync method for first loading and pagination loading content.
     private func requestItems(isFirst: Bool) {

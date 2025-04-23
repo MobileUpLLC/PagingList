@@ -271,7 +271,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export PATH=\"$PATH:/opt/homebrew/bin\"\n\nif which swiftlint >/dev/null; then\n  swiftlint --path .. --config ../swiftlint.yml\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+			shellScript = "export PATH=\"$HOME/.mint/bin:/opt/homebrew/bin:$PATH\"\nexpected_swiflint_version=\"0.58.2\"\n\nif (mint list | grep \"$expected_swiflint_version\"); then\n    mint install realm/SwiftLint@\"$expected_swiflint_version\"\n    swiftlint lint --config ../swiftlint.yml ..\nelse\n    echo \"SwiftLint $expected_swiflint_version is not installed\"\n    echo \"run the command in the terminal: mint install realm/SwiftLint@$expected_swiflint_version\"\n    exit 1\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

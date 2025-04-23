@@ -12,6 +12,7 @@ final class PostsRepository: Sendable {
         static let delayInNanoseconds: UInt64 = 3_000_000_000
     }
     
+    @Sendable
     func getPosts(page: Int, pageSize: Int) async throws -> PostExampleModel {
         try await Task.sleep(nanoseconds: Constants.delayInNanoseconds)
         

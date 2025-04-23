@@ -2,7 +2,6 @@ import Foundation
 
 /// Errors that can occur during paginated requests.
 public enum PagingError: Error {
-    
     /// A request is already in progress.
     case requestInProgress
     
@@ -12,15 +11,16 @@ public enum PagingError: Error {
 
 /// A protocol defining the structure of a paginated response, including items and optional pagination metadata.
 public protocol PaginatedResponse: Codable, Sendable {
-    
     /// The type of items contained in the response, conforming to Codable and Sendable.
     associatedtype T: Codable, Sendable
     
     /// The list of items for the current page.
     var items: [T] { get }
     
+    // swiftlint:disable discouraged_optional_boolean
     /// Indicates whether more pages are available.
     var hasMore: Bool? { get }
+    // swiftlint:enable discouraged_optional_boolean
     
     /// The total number of pages, if known.
     var totalPages: Int? { get }
