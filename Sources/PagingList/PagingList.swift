@@ -27,8 +27,8 @@ public struct PagingList<
     private let pagingErrorViewBuilder: (Error) -> PagingErrorView
     
     private let onPageRequest: PageRequestClosure
-    private let onRefreshRequest: RefreshClosure
-    
+    private let onRefreshRequest: RefreshClosure?
+
     public var body: some View {
         List {
             ForEach(items) { item in
@@ -61,6 +61,10 @@ public struct PagingList<
             default:
                 EmptyView()
             }
+        }
+        .if(onRefreshRequest != nil) {
+            $0
+                .refreshable(action: requestOnRefresh)
         }
         .refreshable(action: requestOnRefresh)
     }
@@ -105,6 +109,6 @@ public struct PagingList<
     }
     
     @Sendable private func requestOnRefresh() async {
-        await onRefreshRequest()
+        await onRefreshRequest?()
     }
 }
