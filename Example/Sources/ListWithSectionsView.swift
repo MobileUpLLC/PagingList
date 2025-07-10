@@ -29,6 +29,7 @@ struct ListWithSectionsView: View {
     var body: some View {
         PagingList(
             state: $pagingState,
+            hasRefresh: true,
             items: sections
         ) { item in
             Section(content: {

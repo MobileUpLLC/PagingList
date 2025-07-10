@@ -23,6 +23,7 @@ struct ListWithoutSectionView: View {
     var body: some View {
         PagingList(
             state: $pagingState,
+            hasRefresh: true,
             items: items
         ) { item in
             Text("\(item)")
