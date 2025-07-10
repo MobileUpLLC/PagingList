@@ -27,7 +27,9 @@ public struct PagingList<
     private let pagingErrorViewBuilder: (Error) -> PagingErrorView
     
     private let onPageRequest: PageRequestClosure
-    private let onRefreshRequest: RefreshClosure?
+    private let onRefreshRequest: RefreshClosure
+
+    private let hasRefresh: Bool
 
     public var body: some View {
         List {
@@ -62,15 +64,15 @@ public struct PagingList<
                 EmptyView()
             }
         }
-        .if(onRefreshRequest != nil) {
+        .if(hasRefresh) {
             $0
                 .refreshable(action: requestOnRefresh)
         }
-        .refreshable(action: requestOnRefresh)
     }
     
     public init(
         state: Binding<PagingListState>,
+        hasRefresh: Bool,
         items: Items,
         rowContent: @escaping (Items.Element) -> RowContent,
         @ViewBuilder fullscreenEmptyView: @escaping () -> FullscreenEmptyView,
@@ -80,7 +82,7 @@ public struct PagingList<
         @ViewBuilder pagingLoadingView: @escaping () -> PagingLoadingView,
         @ViewBuilder pagingErrorView: @escaping (Error) -> PagingErrorView,
         onPageRequest: @escaping PageRequestClosure,
-        onRefreshRequest: @escaping RefreshClosure
+        onRefreshRequest: @escaping RefreshClosure,
     ) {
         self._state = state
         self.items = items
@@ -93,6 +95,7 @@ public struct PagingList<
         self.pagingErrorViewBuilder = pagingErrorView
         self.onPageRequest = onPageRequest
         self.onRefreshRequest = onRefreshRequest
+        self.hasRefresh = hasRefresh
     }
     
     private func requestNextPage() {
@@ -109,6 +112,6 @@ public struct PagingList<
     }
     
     @Sendable private func requestOnRefresh() async {
-        await onRefreshRequest?()
+        await onRefreshRequest()
     }
 }
